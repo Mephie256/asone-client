@@ -1236,3 +1236,31 @@ button.page-dots__dot {
   padding: 0 var(--space-1);
   color: var(--text-muted);
 }
+
+/* ---------------------------------------------------------------------------
+ * ConfirmButton
+ *
+ * The two-step an irreversible action turns into, in place rather than in a
+ * dialog: these sit in table rows and side panels, where a modal would cover
+ * the row you are confirming.
+ * ------------------------------------------------------------------------ */
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.confirm__note {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.confirm__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}

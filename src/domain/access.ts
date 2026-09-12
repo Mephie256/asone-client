@@ -104,6 +104,19 @@ export function canReadSchoolOrders(user: CurrentUser | null): boolean {
 }
 
 /**
+ * Who may receive goods in and send them out — F19-F21, F37-F42.
+ *
+ * The "Warehouse Receiving and Shipping" column: warehouse staff for their
+ * own site, and the two leads everywhere. `scope_to_user_site` on the server
+ * confines a clerk to their warehouse; this only decides who sees the door.
+ *
+ * Mirrors `accounts/permissions.py::CanReceiveAndShip`.
+ */
+export function canReceiveAndShip(user: CurrentUser | null): boolean {
+  return can(user, 'warehouse_receiving_and_shipping')
+}
+
+/**
  * Who may raise a production order on a Tailoring Center — F17.
  *
  * The **Table Updates** column, which AsOne gives to the two leads alone.

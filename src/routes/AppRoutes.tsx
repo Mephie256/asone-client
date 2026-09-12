@@ -35,6 +35,9 @@ import { CreateProductionOrderScreen } from '@/features/production/screens/Creat
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
 import { ProductionOrdersScreen } from '@/features/production/screens/ProductionOrdersScreen'
 import { ReceivingScreen } from '@/features/receiving/screens/ReceivingScreen'
+import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetailScreen'
+import { PickingScreen } from '@/features/shipments/screens/PickingScreen'
+import { ShipmentsScreen } from '@/features/shipments/screens/ShipmentsScreen'
 import { canReadSchoolOrders } from '@/domain/access'
 import { ALL_NAV_ITEMS } from '@/features/shell/navigation'
 import { PlaceholderScreen } from '@/features/shell/screens/PlaceholderScreen'
@@ -54,6 +57,9 @@ const SCREENS: Record<string, ComponentType> = {
   '/orders': OrdersListScreen,
   '/receiving': ReceivingScreen,
   '/production-orders': ProductionOrdersScreen,
+  // The landing view is the picking backlog; despatched shipments are the
+  // history behind it.
+  '/shipments': PickingScreen,
 }
 
 export function AppRoutes() {
@@ -91,6 +97,28 @@ export function AppRoutes() {
           />
 
           {/* Before the :orderId route, or "new" is parsed as an order id. */}
+          <Route
+            path="/shipments/history"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="warehouse_receiving_and_shipping">
+                  <ShipmentsScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/shipments/:shipmentId"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="warehouse_receiving_and_shipping">
+                  <ShipmentDetailScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
           <Route
             path="/production-orders/new"
             element={

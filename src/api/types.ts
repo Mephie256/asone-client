@@ -222,6 +222,12 @@ export type PackingList = S['PackingList']
  * is the school confirming it arrived — the fact that completes the order.
  */
 export type Shipment = S['Shipment']
+export type ShipmentLine = S['ShipmentLine']
+/** A row of the picking backlog — F38. */
+export type PickingQueueRow = S['PickingQueueRow']
+export type PickingSummary = S['PickingSummary']
+/** A school with orders picked and waiting — the despatch queue. */
+export type ReadyToDespatch = S['ReadyToDespatch']
 
 /**
  * What a school's dashboard shows — orders by state, what is owed, parcels

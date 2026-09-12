@@ -1936,6 +1936,73 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/orders/despatch/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Despatch to a school
+         * @description Loads every picked order waiting for that school onto one shipment, or just the ones named in `orders`.
+         *
+         *     Refused if an order is not picked, is cancelled, or belongs to another school — a clerk who asked for it to go needs to know it did not, rather than find it left behind.
+         */
+        post: operations["orders_despatch_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/despatch/queue/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Schools with orders ready to despatch
+         * @description What is picked and waiting to go, grouped by school — F42.
+         *
+         *     The despatch screen's list: a school, how many of its orders are ready,
+         *     and how many garments that is. Grouped because the van is per school.
+         */
+        get: operations["orders_despatch_queue_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/picking/queue/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The picking backlog
+         * @description The backlog, most urgent first, paginated.
+         *
+         *     `summary` counts the **whole** queue, not the page: a warehouse asking how much is waiting means all of it, and a tile that changed as you paged would be worse than no tile.
+         */
+        get: operations["orders_picking_queue_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/orders/reports/backorders/": {
         parameters: {
             query?: never;
@@ -2471,6 +2538,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/orders/school-orders/{id}/unpick/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Undo a pick
+         * @description Puts a mistakenly picked order back on the shelf — the undo for F39.
+         *
+         *     Picking is one click and it reserves stock, so a wrong click can refuse the next school's order for a shortfall that is not real. This posts the **offsetting** ledger pair — out of Pick, back into Available — at the value the stock is carried at. Nothing is deleted: the ledger is append-only and the history reads as what happened.
+         *
+         *     Refused once the order has shipped. Stock that has left the building comes back as a return, not by undoing a pick.
+         */
+        post: operations["orders_school_orders_unpick_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/shipments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Shipments
+         * @description What has left the warehouses, newest first.
+         *
+         *     `status` is **derived**, not stored: SHIPPED means it left, DELIVERED means the school confirmed it arrived. There is no 'preparing' state — a shipment row does not exist until despatch creates it.
+         */
+        get: operations["orders_shipments_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/shipments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Everything that has left a warehouse — F41.
+         *
+         *     **Read only, deliberately.** A shipment is not created by posting to a
+         *     collection; it is created by `ship_order()`, which moves reserved stock
+         *     out of the ledger in the same transaction. Letting a client POST a
+         *     shipment row would let it claim goods left the building without the stock
+         *     ever moving, which is the one thing the ledger exists to prevent.
+         *     Despatch stays `POST /school-orders/{id}/ship/`.
+         *
+         *     ## Who sees it
+         *
+         *     The same audience as the fulfilment reports: the two leads everywhere,
+         *     warehouse staff for their own site, and a school for its own parcels.
+         *     Finance is excluded — the matrix gives them the costed reports, not the
+         *     operational backlog, and the costed view of exactly these rows already
+         *     exists at `reports/shipments-costed/`.
+         *
+         *     Scoping is two-sided: a warehouse clerk sees what left their warehouse, a
+         *     school sees what is coming to it. Those are different columns, so the two
+         *     are handled separately rather than by one call that can only mean one.
+         */
+        get: operations["orders_shipments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/procurement/group-orders/": {
         parameters: {
             query?: never;
@@ -2953,6 +3104,20 @@ export interface components {
             days_in_transit: number;
             /** @description Not always the school's own: a backorder may ship direct from another (D2). */
             from_warehouse: string;
+        };
+        /** @description Sending a school's picked orders out on one van — F42. */
+        Despatch: {
+            /** @description Who the van is going to. */
+            school: number;
+            /** @description Which orders to load. Omit to send every picked order waiting for that school at this warehouse. */
+            orders?: number[];
+            /** @description Defaults to the caller's own warehouse. */
+            from_warehouse?: number;
+            /** Format: date */
+            shipped_on?: string;
+            waybill_number?: string;
+            carrier_method?: string;
+            notes?: string;
         };
         /**
          * @description * `INCREASE` - Increases stock
@@ -3462,9 +3627,8 @@ export interface components {
             shipped_on: string;
             waybill_number: string;
             from_warehouse: string;
-            /** @description The order number. Used with the student's name to hand over the parcel. */
-            invoice_number: string;
-            student_name: string;
+            /** @description Every invoice number on this van. */
+            order_numbers: string[];
             school: string;
             school_address: string;
             /** @description True for a backorder filled elsewhere and shipped direct (D2). */
@@ -3472,7 +3636,17 @@ export interface components {
             lines: components["schemas"]["PackingListLine"][];
             total_units: number;
         };
+        /**
+         * @description One item in the parcel, and who it is for.
+         *
+         *     AsOne's definitions page: the school uses the **invoice number and the
+         *     student's name together** to hand shipments to the right child. On a
+         *     consolidated van (F42) that pairing has to be per line — one sheet
+         *     covers several students.
+         */
         PackingListLine: {
+            invoice_number: string;
+            student_name: string;
             sku_number: string;
             description: string;
             quantity: number;
@@ -3686,6 +3860,13 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["PartProcessedOrder"][];
+        };
+        /** @description The backlog, one page of it, in the shape every other list uses. */
+        PaginatedPickingQueue: {
+            count: number;
+            next: string | null;
+            previous: string | null;
+            results: components["schemas"]["PickingQueueRow"][];
         };
         PaginatedProductionOrderList: {
             /** @example 123 */
@@ -4177,6 +4358,14 @@ export interface components {
             order_date?: string;
             readonly status?: components["schemas"]["SchoolOrderStatusEnum"];
             readonly status_display?: string;
+            /**
+             * @description A picking hint for the warehouse. Nothing in the system acts on it.
+             *
+             *     * `NORMAL` - Normal
+             *     * `HIGH` - High
+             *     * `URGENT` - Urgent
+             */
+            priority?: components["schemas"]["PriorityEnum"];
             notes?: string;
             /** Format: decimal */
             readonly total?: string;
@@ -4296,6 +4485,57 @@ export interface components {
             readonly created_at?: string;
             readonly lines?: components["schemas"]["WarehouseTransferLine"][];
         };
+        /**
+         * @description The picking screen's landing payload: the tiles and a page of backlog.
+         *
+         *     `summary` counts the whole queue while `orders` is one page of it. That
+         *     asymmetry is on purpose — "12 ready to pick" means twelve, not twelve on
+         *     this page.
+         */
+        PickingQueue: {
+            summary: components["schemas"]["PickingSummary"];
+            orders: components["schemas"]["PaginatedPickingQueue"];
+        };
+        /** @description An order waiting to be picked — the backlog row. */
+        PickingQueueRow: {
+            readonly id: number;
+            /** @description System assigned. Also the invoice number. Never reused. */
+            readonly number: string;
+            school: number;
+            readonly school_name: string;
+            readonly warehouse_name: string;
+            /** @description The student this uniform is for. Free text — students have no accounts. */
+            student_name: string;
+            /**
+             * Format: date
+             * @description The date the school placed it.
+             */
+            order_date: string;
+            status?: components["schemas"]["SchoolOrderStatusEnum"];
+            readonly status_display: string;
+            /**
+             * @description A picking hint for the warehouse. Nothing in the system acts on it.
+             *
+             *     * `NORMAL` - Normal
+             *     * `HIGH` - High
+             *     * `URGENT` - Urgent
+             */
+            priority?: components["schemas"]["PriorityEnum"];
+            readonly priority_display: string;
+            /** @description Garments, not lines — what the warehouse actually pulls. */
+            readonly item_count: number;
+            /** @description The first few SKUs, so a clerk can see what kind of pick it is. */
+            readonly sku_sample: unknown[];
+        };
+        /** @description The three tiles above the picking backlog. */
+        PickingSummary: {
+            /** @description Released and paid for, nothing off the shelf yet. */
+            ready_to_pick: number;
+            /** @description Off the shelf and reserved, waiting for a van. */
+            picked: number;
+            /** @description Orders picked today, counted from the ledger rows picking writes. */
+            completed_today: number;
+        };
         /** @description One line of a PS or HS price list. */
         PriceListRow: {
             garment_id: number;
@@ -4304,6 +4544,13 @@ export interface components {
             /** Format: decimal */
             unit_price: string;
         };
+        /**
+         * @description * `NORMAL` - Normal
+         *     * `HIGH` - High
+         *     * `URGENT` - Urgent
+         * @enum {string}
+         */
+        PriorityEnum: "NORMAL" | "HIGH" | "URGENT";
         /**
          * @description * `OPEN` - Open
          *     * `CLOSED` - Closed
@@ -4390,6 +4637,15 @@ export interface components {
             group_order?: number | null;
             notes?: string;
             lines: components["schemas"]["OrderLineInput"][];
+        };
+        /** @description A school with orders picked and waiting — the despatch queue. */
+        ReadyToDespatch: {
+            school_id: number;
+            school__name: string;
+            /** @description Picked orders waiting for this school. */
+            orders: number;
+            /** @description Garments across those orders. */
+            units: number;
         };
         /**
          * @description An inventory adjustment reason code — F13.
@@ -4638,6 +4894,14 @@ export interface components {
             order_date: string;
             readonly status: components["schemas"]["SchoolOrderStatusEnum"];
             readonly status_display: string;
+            /**
+             * @description A picking hint for the warehouse. Nothing in the system acts on it.
+             *
+             *     * `NORMAL` - Normal
+             *     * `HIGH` - High
+             *     * `URGENT` - Urgent
+             */
+            priority?: components["schemas"]["PriorityEnum"];
             notes?: string;
             /** Format: decimal */
             readonly total: string;
@@ -4773,8 +5037,14 @@ export interface components {
             readonly id: number;
             /** @description System assigned. Never reused. */
             readonly number: string;
-            readonly order: number;
-            readonly order_number: string;
+            /** @description Who receives it. Every order on a shipment belongs to this school. */
+            readonly school: number;
+            readonly school_name: string;
+            readonly order_count: number;
+            /** @description Read off the prefetched lines, so a list costs no extra query. */
+            readonly order_numbers: unknown[];
+            readonly status: string;
+            readonly total_quantity: number;
             /** @description Where this actually left from, which is not always the school's own warehouse. */
             readonly from_warehouse: number;
             readonly from_warehouse_name: string;
@@ -4787,6 +5057,8 @@ export interface components {
             readonly shipped_by_name: string;
             /** @description The carrier's reference, if there is one. */
             readonly waybill_number: string;
+            /** @description How it travelled — a truck, a route, a courier. As given at the gate. */
+            readonly carrier_method: string;
             readonly notes: string;
             /** Format: date-time */
             readonly received_at: string | null;
@@ -4795,8 +5067,18 @@ export interface components {
             readonly receipt_notes: string;
             readonly lines: components["schemas"]["ShipmentLine"][];
         };
+        /**
+         * @description One SKU on a van, and whose it is.
+         *
+         *     Since F42 a shipment carries several orders, so the line — not the
+         *     shipment — is what names the student. The packing list is built on this.
+         */
         ShipmentLine: {
             readonly id: number;
+            /** @description Which order this line fills, and so which student it is for. */
+            order: number;
+            readonly order_number: string;
+            readonly student_name: string;
             sku: number;
             readonly sku_number: string;
             readonly sku_description: string;
@@ -8151,6 +8433,75 @@ export interface operations {
             };
         };
     };
+    orders_despatch_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Despatch"];
+                "application/x-www-form-urlencoded": components["schemas"]["Despatch"];
+                "multipart/form-data": components["schemas"]["Despatch"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shipment"];
+                };
+            };
+        };
+    };
+    orders_despatch_queue_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadyToDespatch"][];
+                };
+            };
+        };
+    };
+    orders_picking_queue_retrieve: {
+        parameters: {
+            query?: {
+                page?: number;
+                /** @description Capped at 200. */
+                page_size?: number;
+                /** @description Required for an all-locations role; ignored for a clerk. */
+                warehouse?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PickingQueue"];
+                };
+            };
+        };
+    };
     orders_reports_backorders_list: {
         parameters: {
             query?: {
@@ -8773,6 +9124,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedShipmentList"];
+                };
+            };
+        };
+    };
+    orders_school_orders_unpick_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this school order. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolOrder"];
+                };
+            };
+        };
+    };
+    orders_shipments_list: {
+        parameters: {
+            query?: {
+                from_warehouse?: number;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description Destination school id. */
+                school?: number;
+                /** @description Shipment or order number, or school name. */
+                search?: string;
+                /** @description On or after, YYYY-MM-DD. */
+                shipped_from?: string;
+                shipped_on?: string;
+                /** @description On or before, YYYY-MM-DD. */
+                shipped_to?: string;
+                /** @description SHIPPED (left, not yet confirmed) or DELIVERED (school confirmed). */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedShipmentList"];
+                };
+            };
+        };
+    };
+    orders_shipments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shipment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shipment"];
                 };
             };
         };

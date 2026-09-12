@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ShoppingCart } from 'lucide-react'
 import * as catalogApi from '@/api/catalog'
-import { Button, Pagination } from '@/components'
+import { Button, Pagination, TabBar } from '@/components'
 import { can, seesAllLocations } from '@/domain/access'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { AppShell } from '@/features/shell/components/AppShell'
@@ -102,20 +102,14 @@ export function OrdersListScreen() {
         )}
       </header>
 
-      <div className="tabbar" role="tablist">
-        {ORDER_TABS.map((entry, index) => (
-          <button
-            key={entry.label}
-            type="button"
-            role="tab"
-            aria-selected={index === tabIndex}
-            className={`tabbar__tab${index === tabIndex ? ' tabbar__tab--active' : ''}`}
-            onClick={() => selectTab(index)}
-          >
-            {entry.label}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        label="Order groupings"
+        tabs={ORDER_TABS.map((entry) => ({ key: entry.label, label: entry.label }))}
+        active={ORDER_TABS[tabIndex].label}
+        onSelect={(key) =>
+          selectTab(ORDER_TABS.findIndex((entry) => entry.label === key))
+        }
+      />
 
       <OrderFilters
         value={filters}

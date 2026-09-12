@@ -206,7 +206,6 @@ export function ProductionOrdersScreen() {
               )}
 
               <Pagination
-                numbered
                 page={page}
                 pageCount={Math.max(1, Math.ceil(total / PRODUCTION_PAGE_SIZE))}
                 totalItems={total}

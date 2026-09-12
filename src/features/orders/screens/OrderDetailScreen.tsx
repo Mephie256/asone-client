@@ -17,13 +17,22 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PackageCheck, Printer, ShoppingCart } from 'lucide-react'
-import { Badge, Button, LoadingScreen, Spinner, TextField, snackbar } from '@/components'
+import { PackageCheck, Printer, ShoppingCart, Undo2 } from 'lucide-react'
+import {
+  Badge,
+  Button,
+  ConfirmButton,
+  LoadingScreen,
+  Spinner,
+  TextField,
+  snackbar,
+} from '@/components'
 import {
   canConfirmPayment,
   canConfirmReceipt,
   canPlaceSchoolOrder,
   canReadPackingList,
+  canReceiveAndShip,
 } from '@/domain/access'
 import { formatUGX } from '@/domain/money'
 import { paymentLabel, paymentTone } from '@/domain/status'
@@ -39,6 +48,7 @@ import {
   useReleaseOrder,
 } from '../hooks/useOrder'
 import { usePackingLists } from '../hooks/usePackingLists'
+import { useUnpickOrder } from '@/features/shipments/hooks/useShipments'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 
 export function OrderDetailScreen() {
@@ -52,10 +62,8 @@ export function OrderDetailScreen() {
   const receipt = useConfirmReceipt(id)
 
   const [reference, setReference] = useState('')
-  const [reason, setReason] = useState('')
   const [receiptNotes, setReceiptNotes] = useState('')
   const [parcel, setParcel] = useState<number | null>(null)
-  const [cancelling, setCancelling] = useState(false)
   // Set once on the first print click and never reset: the slips are then
   // cached, so later clicks print straight from what is already loaded.
   const [wantsSlips, setWantsSlips] = useState(false)
@@ -77,6 +85,9 @@ export function OrderDetailScreen() {
   const mayRelease = canConfirmPayment(user)
   const mayReceive = canConfirmReceipt(user)
   const mayCancel = canPlaceSchoolOrder(user)
+  const mayPick = canReceiveAndShip(user)
+  const unpick = useUnpickOrder()
+  const picked = order?.status === 'PICKED'
 
   /*
    * Which parcel arrived. An order usually has one, and then the server
@@ -334,34 +345,65 @@ export function OrderDetailScreen() {
                 {slips.isFetching ? <Spinner size={14} /> : <Printer size={16} aria-hidden />}
                 Print Delivery Slip
               </Button>
+
+              {picked && mayPick && (
+                <>
+                  {/*
+                    The pick list is the sheet the warehouse ticks off the
+                    shelves. It belongs on the order rather than in the
+                    backlog row: a clerk prints it while looking at what they
+                    are about to pull.
+                  */}
+                  <Button variant="secondary" size="lg" onClick={() => window.print()}>
+                    <Printer size={16} aria-hidden />
+                    Print Pick List
+                  </Button>
+
+                  {/*
+                    The way back from a mistaken pick. Posts the offsetting
+                    ledger pair rather than deleting anything, so the history
+                    reads as picked, then put back, by whom and why.
+                  */}
+                  <ConfirmButton
+                    variant="danger-outline"
+                    confirmVariant="danger"
+                    size="lg"
+                    askReason
+                    reasonLabel="Why is it going back?"
+                    confirmLabel="Put it back"
+                    pendingLabel="Undoing…"
+                    pending={unpick.isPending}
+                    note="Returns the stock to the shelf and puts the order back in the picking queue. The ledger keeps both entries."
+                    onConfirm={(why) => unpick.mutate({ orderId: id, reason: why })}
+                  >
+                    <Undo2 size={16} aria-hidden />
+                    Undo Pick
+                  </ConfirmButton>
+                </>
+              )}
             </div>
 
             {canCancelNow && (
               <>
                 <hr className="card-panel__rule" />
-                {cancelling ? (
-                  <div className="stack-actions">
-                    <TextField
-                      label="Reason"
-                      value={reason}
-                      onChange={(event) => setReason(event.target.value)}
-                    />
-                    <Button
-                      variant="danger"
-                      disabled={!reason.trim() || cancel.isPending}
-                      onClick={() => cancel.mutate(reason)}
-                    >
-                      {cancel.isPending ? 'Cancelling…' : 'Confirm cancellation'}
-                    </Button>
-                    <Button variant="ghost" onClick={() => setCancelling(false)}>
-                      Keep order
-                    </Button>
-                  </div>
-                ) : (
-                  <Button variant="danger-outline" onClick={() => setCancelling(true)}>
-                    Cancel Order
-                  </Button>
-                )}
+                {/*
+                  The shared two-step, not a hand-rolled one. This screen is
+                  where the pattern started; picking and despatch grew their
+                  own copies of it, so it now lives in one component.
+                */}
+                <ConfirmButton
+                  variant="danger-outline"
+                  confirmVariant="danger"
+                  askReason
+                  reasonLabel="Why is it being cancelled?"
+                  confirmLabel="Confirm cancellation"
+                  pendingLabel="Cancelling…"
+                  pending={cancel.isPending}
+                  note="The invoice becomes void. Nothing is deleted — the school has given this number to a parent."
+                  onConfirm={(why) => cancel.mutate(why)}
+                >
+                  Cancel Order
+                </ConfirmButton>
               </>
             )}
           </section>

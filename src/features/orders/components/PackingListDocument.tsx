@@ -43,12 +43,10 @@ export function PackingListDocument({ lists }: { lists: PackingList[] }) {
               </dd>
             </div>
             <div>
-              <dt>Student</dt>
-              <dd>{list.student_name}</dd>
-            </div>
-            <div>
-              <dt>Invoice</dt>
-              <dd>{list.invoice_number}</dd>
+              {/* F42: one van can carry several invoices, so the header
+                  lists them and each line names its own student. */}
+              <dt>{list.order_numbers.length === 1 ? 'Invoice' : 'Invoices'}</dt>
+              <dd>{list.order_numbers.join(', ')}</dd>
             </div>
             <div>
               <dt>From</dt>
@@ -64,14 +62,23 @@ export function PackingListDocument({ lists }: { lists: PackingList[] }) {
           <table className="slip__table">
             <thead>
               <tr>
+                <th>Student</th>
+                <th>Invoice</th>
                 <th>SKU</th>
                 <th>Description</th>
                 <th>Qty</th>
               </tr>
             </thead>
             <tbody>
+              {/*
+                Keyed on invoice + SKU, not SKU alone: two students on one
+                van can both be getting a size 8 shirt, and that is two
+                lines, not a duplicate key.
+              */}
               {list.lines.map((line) => (
-                <tr key={line.sku_number}>
+                <tr key={`${line.invoice_number}-${line.sku_number}`}>
+                  <td>{line.student_name}</td>
+                  <td>{line.invoice_number}</td>
                   <td>{line.sku_number}</td>
                   <td>{line.description}</td>
                   <td>{line.quantity}</td>
@@ -80,7 +87,7 @@ export function PackingListDocument({ lists }: { lists: PackingList[] }) {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={2}>Total units</td>
+                <td colSpan={4}>Total units</td>
                 <td>{list.total_units}</td>
               </tr>
             </tfoot>

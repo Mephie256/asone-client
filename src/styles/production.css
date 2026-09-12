@@ -14,7 +14,6 @@
   gap: var(--space-3);
   flex-wrap: wrap;
   padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -89,7 +88,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) 0 0;
   font-size: var(--text-caption);
   color: var(--text-muted);
 }
@@ -113,7 +111,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-4);
-  margin: var(--space-4) 0 var(--space-5);
 }
 
 .fact-card {
@@ -340,3 +337,121 @@
   font-size: var(--text-caption);
   color: var(--text-secondary);
 }
+
+/* ---------------------------------------------------------------------------
+ * Shipping — F41, F42
+ * ------------------------------------------------------------------------ */
+
+/*
+ * The despatch queue. Sits above the table of what has already gone, because
+ * loading a van is the thing a clerk came here to do; reading history is not.
+ */
+.despatch {
+  padding: var(--space-4) var(--space-5);
+  background: var(--accent-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.despatch__head { margin-bottom: var(--space-3); }
+
+.despatch__title {
+  margin: 0;
+  font-size: var(--text-h3);
+  color: var(--accent-hover);
+}
+
+.despatch__note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.despatch__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.despatch__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.despatch__school {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.despatch__meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+/* Orders on one van. */
+.included {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.included__item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.included__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.included__number {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  color: var(--accent-hover);
+}
+
+.included__student {
+  margin: var(--space-1) 0 0;
+  color: var(--text-primary);
+}
+
+.included__meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+/* The header above a table that is not the whole card. */
+.table-card__head {
+  padding: var(--space-4) var(--space-5) 0;
+}
+
+.table-card__title {
+  margin: 0;
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+}
+

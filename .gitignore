@@ -31,3 +31,6 @@ dist-ssr
 
 # Design source — kept out of the repo, shared separately
 docs/design/
+
+# Screenshot helper, written per-session for reviewing screens locally.
+capture-*.mjs

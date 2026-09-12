@@ -23,6 +23,25 @@
   padding: var(--space-5) var(--space-5) var(--space-6);
 }
 
+/*
+ * Vertical rhythm, once, for every screen.
+ *
+ * Each screen used to set its own margins on its own sections — a bottom
+ * margin here, a top margin there, none at all on a third — so whether two
+ * blocks had a gap depended on which pair happened to meet. KPI cards sat
+ * flush under a tab strip on one screen and had room on another.
+ *
+ * The owl selector puts the same gap between every pair of top-level blocks
+ * and none before the first, so a screen's spacing is a property of the
+ * frame rather than something each screen has to remember.
+ *
+ * A section that genuinely needs to sit tighter says so itself; that is now
+ * a deliberate exception rather than the default.
+ */
+.shell__content > * + * {
+  margin-top: var(--space-5);
+}
+
 /* ---------------------------------------------------------------------------
  * Sidebar
  * ------------------------------------------------------------------------ */
