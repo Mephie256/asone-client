@@ -18,7 +18,7 @@ const ICONS = {
 } as const
 
 interface AlertProps {
-  tone?: Exclude<Tone, 'neutral'>
+  tone?: Exclude<Tone, 'neutral' | 'purple'>
   children: ReactNode
 }
 

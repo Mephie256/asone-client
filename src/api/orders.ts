@@ -11,6 +11,7 @@ import type {
   OrderOnHold,
   PackingList,
   Page,
+  PartProcessedOrder,
   SchoolOrder,
   SchoolOrderStatus,
   Shipment,
@@ -21,9 +22,32 @@ export function ordersOnHold(params?: { page?: number }) {
   return get<Page<OrderOnHold>>('/orders/reports/on-hold/', params ?? undefined)
 }
 
-/** Picked but not despatched — the shipping queue. */
-export function ordersPartProcessed(params?: { page?: number }) {
-  return get<Page<SchoolOrder>>('/orders/reports/part-processed/', params ?? undefined)
+/**
+ * Picked but not despatched — the shipping queue.
+ *
+ * `warehouse` narrows to one site, on top of the server's own row scoping —
+ * what a lead uses to look at one warehouse's own queue instead of every
+ * site's at once. Omit it for every site the role may see.
+ */
+export function ordersPartProcessed(params?: {
+  warehouse?: number
+  page?: number
+  page_size?: number
+}) {
+  return get<Page<PartProcessedOrder>>('/orders/reports/part-processed/', params ?? undefined)
+}
+
+/**
+ * Despatch history — every `Shipment` already created through `ship`/`fill`,
+ * listable on its own rather than reached one order at a time.
+ */
+export function shipments(params?: {
+  from_warehouse?: number
+  order?: number
+  page?: number
+  page_size?: number
+}) {
+  return get<Page<Shipment>>('/orders/shipments/', params ?? undefined)
 }
 
 /**
@@ -40,6 +64,8 @@ export function outstandingBackorders(params?: { page?: number }) {
 export function schoolOrders(params?: {
   status?: SchoolOrderStatus
   order_date?: string
+  /** Leads only — School Staff never sends this, their own school is implicit. */
+  school?: number
   page?: number
   /** Capped at 200 by the server's pagination class. */
   page_size?: number

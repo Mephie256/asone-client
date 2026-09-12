@@ -3088,6 +3088,8 @@ export interface components {
             orders_awaiting_dispatch: number;
             /** @description Backorders open or assigned, not yet shipped. */
             outstanding_backorders: number;
+            /** @description Garments that left this warehouse today, across every van. */
+            units_shipped_today: number;
             /** @description SKUs at or under their reorder floor. */
             skus_below_minimum: number;
         };
@@ -4094,6 +4096,7 @@ export interface components {
              */
             readonly order_date: string;
             readonly status: components["schemas"]["SchoolOrderStatusEnum"];
+            readonly status_display: string;
             /** Format: decimal */
             readonly total: string;
         };
@@ -4340,6 +4343,10 @@ export interface components {
             address?: string;
             primary_warehouse?: number;
             readonly primary_warehouse_name?: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
+            /** @default 0 */
+            readonly active_orders_count: number;
         };
         /** @description An order, reading. Doubles as the invoice — same number, same lines. */
         PatchedSchoolOrder: {
@@ -4412,6 +4419,8 @@ export interface components {
             readonly id?: number;
             name?: string;
             address?: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
         };
         /**
          * @description A user as a lead sees them in the user management screens.
@@ -4455,6 +4464,8 @@ export interface components {
             address?: string;
             primary_tailoring_center?: number | null;
             readonly primary_tailoring_center_name?: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
         };
         PatchedWarehouseTransfer: {
             readonly id?: number;
@@ -4845,6 +4856,10 @@ export interface components {
             address?: string;
             primary_warehouse: number;
             readonly primary_warehouse_name: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
+            /** @default 0 */
+            readonly active_orders_count: number;
         };
         /** @description Something the school ordered that the warehouse could not fill. */
         SchoolBackorder: {
@@ -5183,6 +5198,8 @@ export interface components {
             readonly id: number;
             name: string;
             address?: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
         };
         TokenRefresh: {
             readonly access: string;
@@ -5311,6 +5328,8 @@ export interface components {
             address?: string;
             primary_tailoring_center?: number | null;
             readonly primary_tailoring_center_name: string;
+            /** @description A closed site stays in reports but takes no new work. */
+            is_active?: boolean;
         };
         /** @description One site's line in the "Inventory by Warehouse" panel. */
         WarehouseInventory: {
@@ -6804,6 +6823,7 @@ export interface operations {
     catalog_schools_list: {
         parameters: {
             query?: {
+                is_active?: boolean;
                 /**
                  * @description * `PS` - Primary School
                  *     * `HS` - High School
@@ -7244,6 +7264,7 @@ export interface operations {
     catalog_tailoring_centers_list: {
         parameters: {
             query?: {
+                is_active?: boolean;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */
@@ -7392,6 +7413,7 @@ export interface operations {
     catalog_warehouses_list: {
         parameters: {
             query?: {
+                is_active?: boolean;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */

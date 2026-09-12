@@ -369,6 +369,7 @@ export function OrderDetailScreen() {
                     confirmVariant="danger"
                     size="lg"
                     askReason
+                    title="Undo this pick?"
                     reasonLabel="Why is it going back?"
                     confirmLabel="Put it back"
                     pendingLabel="Undoing…"
@@ -395,6 +396,7 @@ export function OrderDetailScreen() {
                   variant="danger-outline"
                   confirmVariant="danger"
                   askReason
+                  title={`Cancel ${order.number}?`}
                   reasonLabel="Why is it being cancelled?"
                   confirmLabel="Confirm cancellation"
                   pendingLabel="Cancelling…"

@@ -192,6 +192,7 @@ export function PickingScreen() {
                           */
                           <ConfirmButton
                             size="sm"
+                            title={`Pick ${order.number}?`}
                             confirmLabel="Yes, pick it"
                             pendingLabel="Picking…"
                             pending={picking === order.id}

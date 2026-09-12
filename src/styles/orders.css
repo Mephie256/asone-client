@@ -81,6 +81,167 @@
  * the next person who greps for one.
  */
 
+/* ---------------------------------------------------------------------------
+ * Detail layout
+ * ------------------------------------------------------------------------ */
+
+/*
+ * The right column holds the fulfilment controls and the receipt ledger.
+ * Wider than the 360px it started at. The kit table still has the room it
+ * needs on the left, and the collapse to one column below 1100px keeps this
+ * from squeezing anything on a laptop.
+ */
+.order-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 480px;
+  gap: 20px;
+  align-items: start;
+  margin-top: var(--space-4);
+}
+
+.order-detail__main,
+.order-detail__side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.order-detail__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (max-width: 1100px) {
+  .order-detail { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* A wide table scrolls inside its panel rather than the page. */
+.scroll-x { overflow-x: auto; }
+
+/* ---------------------------------------------------------------------------
+ * Order table columns
+ *
+ * Proportions measured off the design (Figma orders-list): the header text
+ * starts at 430, 582, 905, 1116, 1245, 1460 and 1611 across a 1315px table,
+ * which gives the shares below. Declared rather than left to auto layout,
+ * which shrink-wrapped the numeric columns and pushed the total hard against
+ * the status badge while School kept space it did not need.
+ * ------------------------------------------------------------------------ */
+
+.ledger--orders { table-layout: fixed; min-width: 940px; }
+
+.ledger--orders .col-order { width: 11.6%; }
+.ledger--orders .col-school { width: 24.6%; }
+.ledger--orders .col-student { width: 16%; }
+.ledger--orders .col-items { width: 9.8%; }
+.ledger--orders .col-total { width: 16.3%; }
+.ledger--orders .col-status { width: 11.5%; }
+.ledger--orders .col-date { width: 10.2%; }
+
+/*
+ * Figures are left-aligned, as the design has them. Right-aligning the total
+ * is what put it against the status badge — the column is wide enough that
+ * the number ended up at the far edge with the badge starting immediately
+ * after. Tabular figures keep the digits lining up regardless.
+ */
+.ledger--orders .ledger__num,
+.ledger--orders th.ledger__num {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Long names truncate rather than wrapping a row onto two lines. */
+.ledger--orders tbody td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Filter band — Figma orders-list
+ *
+ * A wide search box with three narrow controls beside it, below the tabs.
+ * ------------------------------------------------------------------------ */
+
+.order-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.order-filters__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1 1 320px;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+}
+
+.order-filters__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.order-filters__search input:focus-visible { outline: none; }
+
+.order-filters__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.order-filters__control select,
+.order-filters__control input {
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.order-filters__control svg { color: var(--text-muted); flex-shrink: 0; }
+
+/* A control that has been narrowed reads as chosen. */
+.order-filters__control--active {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+/* Total and its payment badge share a cell, as the design has them. */
+.order-total {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------------
+ * Tab bar — Figma order-table
+ *
+ * Its own bordered card above the filters, with the active tab as a tinted
+ * pill rather than an underline.
+ * ------------------------------------------------------------------------ */
+
 .tabbar {
   display: flex;
   flex-wrap: wrap;

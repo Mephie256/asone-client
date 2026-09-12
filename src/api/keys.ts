@@ -24,15 +24,33 @@ export const keys = {
   reorderAlerts: (warehouseId: number | null) => ['reorder-alerts', warehouseId] as const,
   movements: (warehouseId: number | null) => ['movements', warehouseId] as const,
   ordersOnHold: () => ['orders', 'on-hold'] as const,
-  ordersPartProcessed: () => ['orders', 'part-processed'] as const,
+  ordersPartProcessed: (warehouseId: number | null) =>
+    ['orders', 'part-processed', warehouseId] as const,
+  shipments: (warehouseId: number | null) => ['orders', 'shipments', warehouseId] as const,
   backorders: () => ['orders', 'backorders'] as const,
+  schoolOrdersForSchool: (schoolId: number) => ['orders', 'by-school', schoolId] as const,
   receipts: () => ['receipts'] as const,
   warehouses: () => ['warehouses'] as const,
 
-  // Locations. Listed separately rather than under one 'catalog' key so
-  // saving a school does not refetch every tailoring center.
+  // Schools — master data, so the list is invalidated as a whole on any
+  // write rather than patched row by row.
+  schools: (
+    level: string | null,
+    warehouseId: number | null,
+    isActive: boolean | null,
+    page: number,
+  ) => ['schools', level, warehouseId, isActive, page] as const,
+  school: (id: number) => ['schools', 'detail', id] as const,
+
+  // Warehouses and Tailoring Centers — master data, same reasoning as
+  // Schools. `warehouses()` above stays as the unfiltered "options" key
+  // pickers already use; these are the paginated list screen's own.
+  warehousesList: (tailoringCenterId: number | null, page: number) =>
+    ['warehouses', 'list', tailoringCenterId, page] as const,
+  warehouse: (id: number) => ['warehouses', 'detail', id] as const,
   tailoringCenters: () => ['tailoring-centers'] as const,
-  schools: () => ['schools'] as const,
+  tailoringCentersList: (page: number) => ['tailoring-centers', 'list', page] as const,
+  tailoringCenter: (id: number) => ['tailoring-centers', 'detail', id] as const,
 
   // Users & Roles. `roles` is the fixed list of five and never changes, so
   // it can be cached hard; `users` changes whenever a lead adds somebody.

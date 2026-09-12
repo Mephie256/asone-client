@@ -1,50 +1,50 @@
 /**
- * A button that asks before it does something it cannot take back.
+ * A button that asks before doing something it cannot take back.
  *
  * One component, because this system has several irreversible actions and
- * they were each growing their own two-step dance: cancelling an order,
- * picking stock, despatching a van. Three inline implementations of the same
- * idea is how a design system stops being one.
+ * they were each growing their own two-step: cancelling an order, picking
+ * stock, despatching a van.
  *
- * The shape is the one the order screen already established — the action
- * turns into a confirm-and-cancel pair in place, optionally with a reason
- * field — rather than a dialog. In place is right here: these actions sit in
- * table rows and side panels where a modal would obscure the very row you
- * are confirming.
+ * **It asks in a dialog, not in place.** The first version swapped the
+ * button for a confirm-and-cancel pair where it stood, which is fine in a
+ * side panel and wrong in a table row — the row grew, every column shifted,
+ * and the thing being confirmed moved while you were reading it. A dialog
+ * costs nothing and behaves the same wherever it is used.
  *
- * `reason` is for an action whose *why* is worth keeping. Undoing a pick is
- * one: somebody will want to know why the stock went back.
+ * `askReason` is for an action whose *why* is worth keeping. Undoing a pick
+ * is one: somebody will want to know why the stock went back.
  */
 
 import { useState, type ReactNode } from 'react'
 import { Button } from './Button'
+import { Modal } from './Modal'
 import { TextField } from './TextField'
 
 interface ConfirmButtonProps {
   /** The resting label — "Start Pick", "Cancel Order". */
   children: ReactNode
-  /** The label once it is asking — "Yes, pick it". */
+  /** The dialog's heading. Defaults to the resting label. */
+  title?: string
+  /** The label on the confirming button — "Yes, pick it". */
   confirmLabel: string
-  /** Shown while the action is running. */
   pendingLabel?: string
-  /** What happens when confirmed. `reason` is empty unless `askReason`. */
+  /** `reason` is empty unless `askReason`. */
   onConfirm: (reason: string) => void
   pending?: boolean
   disabled?: boolean
   variant?: 'primary' | 'secondary' | 'danger' | 'danger-outline' | 'ghost'
-  /** The variant of the confirm step, when it should read louder. */
   confirmVariant?: 'primary' | 'danger'
   size?: 'sm' | 'md' | 'lg'
-  /** Ask why, and require it. */
   askReason?: boolean
   reasonLabel?: string
-  /** One line explaining what confirming will do. */
+  /** What confirming will do. Shown in the dialog body. */
   note?: string
-  title?: string
+  buttonTitle?: string
 }
 
 export function ConfirmButton({
   children,
+  title,
   confirmLabel,
   pendingLabel,
   onConfirm,
@@ -56,63 +56,60 @@ export function ConfirmButton({
   askReason = false,
   reasonLabel = 'Reason',
   note,
-  title,
+  buttonTitle,
 }: ConfirmButtonProps) {
   const [asking, setAsking] = useState(false)
   const [reason, setReason] = useState('')
 
-  if (!asking) {
-    return (
+  function close() {
+    setAsking(false)
+    setReason('')
+  }
+
+  return (
+    <>
       <Button
         variant={variant}
         size={size}
         disabled={disabled || pending}
-        title={title}
+        title={buttonTitle}
         onClick={() => setAsking(true)}
       >
-        {children}
+        {pending && pendingLabel ? pendingLabel : children}
       </Button>
-    )
-  }
 
-  return (
-    <div className="confirm">
-      {note && <p className="confirm__note">{note}</p>}
+      <Modal
+        open={asking}
+        title={title ?? confirmLabel}
+        onClose={close}
+        footer={
+          <div className="modal__foot-actions">
+            <Button variant="secondary" onClick={close} disabled={pending}>
+              Keep as is
+            </Button>
+            <Button
+              variant={confirmVariant}
+              disabled={pending || (askReason && !reason.trim())}
+              onClick={() => {
+                onConfirm(reason.trim())
+                close()
+              }}
+            >
+              {pending ? (pendingLabel ?? 'Working…') : confirmLabel}
+            </Button>
+          </div>
+        }
+      >
+        {note && <p className="confirm__note">{note}</p>}
 
-      {askReason && (
-        <TextField
-          label={reasonLabel}
-          value={reason}
-          onChange={(event) => setReason(event.target.value)}
-        />
-      )}
-
-      <div className="confirm__actions">
-        <Button
-          variant={confirmVariant}
-          size={size}
-          disabled={pending || (askReason && !reason.trim())}
-          onClick={() => {
-            onConfirm(reason.trim())
-            setAsking(false)
-            setReason('')
-          }}
-        >
-          {pending ? (pendingLabel ?? 'Working…') : confirmLabel}
-        </Button>
-
-        <Button
-          variant="ghost"
-          size={size}
-          disabled={pending}
-          onClick={() => {
-            setAsking(false)
-            setReason('')
-          }}
-        >
-          Keep as is
-        </Button>
-      </div>
-    </div>
+        {askReason && (
+          <TextField
+            label={reasonLabel}
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        )}
+      </Modal>
+    </>
   )
 }

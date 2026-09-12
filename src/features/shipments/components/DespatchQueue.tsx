@@ -61,6 +61,7 @@ export function DespatchQueue() {
             */}
             <ConfirmButton
               size="sm"
+              title={`Despatch to ${row.school__name}?`}
               confirmLabel="Send it"
               pendingLabel="Despatching…"
               pending={loading === row.school_id}

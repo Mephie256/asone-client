@@ -151,8 +151,8 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   font-size: var(--text-overline);
   font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
@@ -163,6 +163,7 @@
 .badge--warning { background: var(--warning-bg); color: var(--warning); }
 .badge--error   { background: var(--error-bg);   color: var(--error); }
 .badge--info    { background: var(--info-bg);    color: var(--info); }
+.badge--purple  { background: #f3e8ff;           color: #9333ea; }
 .badge--neutral { background: var(--surface-sunken); color: var(--text-secondary); }
 
 /* Label/value pairs — a record's detail panel. */
@@ -666,7 +667,7 @@ button.page-dots__dot {
   flex-direction: column;
   gap: var(--space-5);
   width: 100%;
-  max-width: 360px;
+  max-width: 440px;
 }
 
 @media (max-width: 900px) {
@@ -1066,6 +1067,82 @@ button.page-dots__dot {
 }
 
 /* ---------------------------------------------------------------------------
+ * Hub list — the warehouse hub console's four queue panels
+ * ------------------------------------------------------------------------ */
+
+.hub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hub-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.hub-list__main {
+  min-width: 0;
+}
+
+.hub-list__title {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-list__subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-list__figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.hub-list__figure-value {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.hub-list__figure-value--alert {
+  color: var(--error);
+}
+
+.hub-list__figure-caption {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
  * Messages
  *
  * Bottom-right, stacked, above everything. Errors stay until dismissed;
@@ -1164,6 +1241,47 @@ button.page-dots__dot {
 }
 
 /* ---------------------------------------------------------------------------
+ * Tabs
+ *
+ * A detail screen's sections — Orders, Students, and so on. Underline style,
+ * not pills: this sits directly under a page heading, and a row of filled
+ * pills there would compete with the KPI tiles below it for weight.
+ * ------------------------------------------------------------------------ */
+
+.tabs {
+  display: flex;
+  gap: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.tabs__tab {
+  padding: var(--space-3) 0;
+  margin-bottom: -1px; /* Sits on top of the strip's own border. */
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  color: var(--text-primary);
+}
+
+.tabs__tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tabs__tab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
  * Server unreachable
  * ------------------------------------------------------------------------ */
 
@@ -1192,6 +1310,106 @@ button.page-dots__dot {
   color: var(--text-secondary);
   text-wrap: pretty;
 }
+
+/* ---------------------------------------------------------------------------
+ * Modal / Dialog Primitive
+ * ------------------------------------------------------------------------ */
+
+/* ---------------------------------------------------------------------------
+ * Modal
+ *
+ * On the native `<dialog>`, so there is no backdrop element to style — the
+ * platform paints `::backdrop` and handles the top layer, focus trap and
+ * inertness. This replaced a div-based version with its own class names;
+ * one set, in the same BEM shape as everything else here.
+ * ------------------------------------------------------------------------ */
+
+.modal {
+  width: min(100%, 440px);
+  max-height: min(88vh, 900px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: 0 24px 48px rgba(33, 35, 43, 0.24);
+  /* Grid so the body scrolls between a pinned head and foot, rather than
+     the dialog growing past the viewport. */
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.modal--md { width: min(100%, 560px); }
+.modal--lg { width: min(100%, 880px); }
+
+.modal::backdrop { background: rgba(33, 35, 43, 0.45); }
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--table-rule);
+}
+
+.modal__title {
+  margin: 0;
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+}
+
+.modal__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.modal__close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.modal__close:hover { background: var(--surface-sunken); color: var(--text-primary); }
+
+.modal__body {
+  padding: var(--space-5);
+  overflow-y: auto;
+}
+
+.modal__foot {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--table-rule);
+  background: var(--surface-sunken);
+}
+
+/* Actions sit right and size to their labels. */
+.modal__foot-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+/* What confirming will do, above any reason field. */
+.confirm__note {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  /* The dialog centres its header row; the body must not inherit that. */
+  text-align: left;
+}
+
+.modal__body { text-align: left; }
 
 /* An outlined destructive action: present, findable, not shouting. */
 .btn--danger-outline {
@@ -1237,30 +1455,3 @@ button.page-dots__dot {
   color: var(--text-muted);
 }
 
-/* ---------------------------------------------------------------------------
- * ConfirmButton
- *
- * The two-step an irreversible action turns into, in place rather than in a
- * dialog: these sit in table rows and side panels, where a modal would cover
- * the row you are confirming.
- * ------------------------------------------------------------------------ */
-
-.confirm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.confirm__note {
-  margin: 0;
-  font-size: var(--text-caption);
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.confirm__actions {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}

@@ -179,6 +179,12 @@
   white-space: nowrap;
 }
 
+/* Not every count is an alert — "3 active POs" is a status, not a warning. */
+.panel__count--info {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
 /* "All clear" is a good outcome, so it reads calmly rather than as an
    absence. */
 .panel__clear {

@@ -213,6 +213,8 @@ export type OrderAvailabilityRow = S['OrderAvailabilityRow']
 export type OrderDemandRow = S['OrderDemandRow']
 export type OrderOnHold = S['OrderOnHold']
 export type PackingList = S['PackingList']
+/** An order picked but not yet despatched — F52/F54, the picking queue. */
+export type PartProcessedOrder = S['PartProcessedOrder']
 
 /**
  * One despatch against an order.

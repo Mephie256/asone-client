@@ -10,7 +10,8 @@ import { keys } from '@/api/keys'
 
 export function useSchools() {
   return useQuery({
-    queryKey: keys.schools(),
+    // Every school, unfiltered — this is an option list, not a view.
+    queryKey: keys.schools(null, null, null, 1),
     queryFn: () => catalog.schools(),
     staleTime: 10 * 60 * 1000,
   })

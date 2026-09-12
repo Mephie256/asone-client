@@ -7,6 +7,7 @@
  */
 
 export { Alert } from './Alert'
+export { AnimatedNumber } from './AnimatedNumber'
 export { Avatar } from './Avatar'
 export { Badge, type Tone } from './Badge'
 export { BrandMark } from './BrandMark'
@@ -14,6 +15,7 @@ export { Button } from './Button'
 export { ConfirmButton } from './ConfirmButton'
 export { EmptyState } from './EmptyState'
 export { LoadingScreen } from './LoadingScreen'
+export { Modal } from './Modal'
 export { OtpInput } from './OtpInput'
 export { PageDots } from './PageDots'
 export { Pagination } from './Pagination'
