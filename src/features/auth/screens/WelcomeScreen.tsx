@@ -39,9 +39,11 @@ export function WelcomeScreen() {
     <SplitAuthLayout>
       <div className="welcome">
         <header className="signin__head">
-          <BrandMark width={80} label="AsOne" />
-          <h1 className="signin__title">AsOne Logistics</h1>
-          <p className="signin__subtitle">Inventory Management</p>
+          {/* Same lockup as sign in. These two screens sit either side of one
+              link, so they move together or the drift is visible. */}
+          <h1 className="signin__logo">
+            <BrandMark width={200} label="AsOne Logistics" />
+          </h1>
         </header>
 
         <p className="welcome__body">

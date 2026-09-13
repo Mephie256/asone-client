@@ -47,9 +47,13 @@ export function SignInScreen() {
   return (
     <SplitAuthLayout>
       <header className="signin__head">
-        <BrandMark width={80} label="AsOne" />
-        <h1 className="signin__title">AsOne Logistics</h1>
-        <p className="signin__subtitle">Inventory Management</p>
+        {/* The mark is the page's heading, not decoration beside one — so it
+            stays inside the h1 and carries the name as its alt text. The
+            screen keeps a level-one heading for screen readers and for
+            document structure, while showing only the logo. */}
+        <h1 className="signin__logo">
+          <BrandMark width={200} label="AsOne Logistics" />
+        </h1>
       </header>
 
       <SignInForm
