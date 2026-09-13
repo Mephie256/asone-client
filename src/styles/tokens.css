@@ -192,7 +192,7 @@
      
      NOTE: this deviates from the Figma spec, which set 14px body. Worth
      telling the designer rather than letting them find it. */
-  --text-scale: 1.125;
+  --text-scale: 1.2;
 
   /*
    * One step per role, and nothing between them. Before this the
