@@ -75,19 +75,9 @@
 }
 
 .sidebar__wordmark {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
   font-size: var(--text-caption);
+  font-weight: var(--weight-regular);
   line-height: 1.2;
-}
-
-.sidebar__wordmark b { font-weight: var(--weight-regular); }
-
-.sidebar__wordmark small {
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .sidebar__groups {
