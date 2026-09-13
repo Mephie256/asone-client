@@ -266,7 +266,19 @@
    * spec's disabled swatches measure out to.
    * ------------------------------------------------------------------ */
 
-  --btn-radius: var(--radius-pill);
+  /*
+   * A rounded rectangle, not a pill.
+   *
+   * This was `--radius-pill` (999px), which made every button fully
+   * round-ended. Measured off the Figma capture: on the Warehouses screen
+   * the corner of "View Dashboard" resolves over about nine device pixels
+   * on a 2x screenshot - roughly 4-5 CSS px. 6px is the nearest token.
+   *
+   * One token, so every button moves together. The genuinely circular
+   * things - spinner, avatar, page dots, icon buttons - keep
+   * `--radius-pill` and are untouched.
+   */
+  --btn-radius: var(--radius-md);
 
   --btn-primary-bg: var(--asone-green);
   --btn-primary-bg-hover: var(--tone-deep-teal);
