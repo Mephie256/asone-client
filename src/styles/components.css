@@ -698,27 +698,19 @@ button.page-dots__dot {
   text-align: center;
 }
 
-/*
- * The logo is the heading. An h1 wrapping an image still carries the default
- * heading font size and margin, both of which would push the mark around, so
- * they are zeroed. line-height: 0 stops the inline box adding a strip of
- * descender space under the image.
- */
-.signin__logo {
+.signin__title {
   margin: 0;
-  font-size: 0;
-  line-height: 0;
+  font-family: var(--font-brand);
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  color: var(--accent);
 }
 
-/*
- * 200px is wider than the content box on a small phone, and the asset is
- * exported with preserveAspectRatio="none" — it will stretch rather than
- * letterbox if only one dimension is constrained. So height: auto travels
- * with the max-width, and the mark shrinks in proportion instead.
- */
-.signin__logo img {
-  max-width: 100%;
-  height: auto;
+.signin__subtitle {
+  margin: 0;
+  font-size: var(--text-h3);
+  color: var(--text-secondary);
 }
 
 .signin__form {
