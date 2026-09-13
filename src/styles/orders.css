@@ -44,7 +44,7 @@
   width: 20px;
   height: 20px;
   border-radius: var(--radius-pill);
-  font-size: 11px;
+  font-size: var(--text-overline);
   font-weight: var(--weight-bold);
 }
 
@@ -508,7 +508,7 @@
   color: var(--text-primary);
 }
 
-.total-line strong { color: var(--accent-hover); font-size: 20px; }
+.total-line strong { color: var(--accent-hover); font-size: var(--text-h2); }
 
 /* The kit table's header takes the design's #F8FAFC. */
 .card-panel .ledger th {
@@ -562,7 +562,7 @@
 
 .slip__brand {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-subhead);
   font-weight: var(--weight-bold);
 }
 
@@ -582,7 +582,7 @@
 }
 
 .slip__facts dt {
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   text-transform: uppercase;

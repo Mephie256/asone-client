@@ -96,10 +96,10 @@ export function SchoolDetailScreen() {
 
   return (
     <AppShell title={school.name}>
-      <div className="school-detail-header">
-        <p className="school-detail__overline">Schools / Details</p>
-        <h1 className="school-detail__main-title">{school.name}</h1>
-        <p className="school-detail__subtitle">
+      <div className="page-head">
+        <p className="page-head__eyebrow">Schools / Details</p>
+        <h1 className="page-head__title">{school.name}</h1>
+        <p className="page-head__subtitle">
           Registration, order statuses, and batch fulfillment schedules.
         </p>
       </div>

@@ -157,6 +157,10 @@
   font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
   white-space: nowrap;
+  /* A status must not be squeezed by a long name beside it. `nowrap` alone
+     is not enough: a flex item still shrinks below its content unless told
+     not to, which crushed "Awaiting Shipping" next to a long school. */
+  flex-shrink: 0;
 }
 
 .badge--success { background: var(--success-bg); color: var(--success); }
@@ -169,7 +173,7 @@
 /* Label/value pairs — a record's detail panel. */
 .grid-kv {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: var(--space-2) var(--space-5);
   margin: 0;
   font-size: var(--text-body);
@@ -285,7 +289,7 @@
 }
 
 .stat__value {
-  font-size: 28px;
+  font-size: var(--text-display);
   font-weight: var(--weight-bold);
   line-height: 1.1;
   color: var(--text-primary);
@@ -484,7 +488,7 @@ button.page-dots__dot {
 .onboarding__title {
   margin: 0;
   font-family: var(--font-brand);
-  font-size: 24px;
+  font-size: var(--text-h1);
   font-weight: var(--weight-bold);
   line-height: normal;
   color: var(--on-overlay);
@@ -493,14 +497,14 @@ button.page-dots__dot {
 
 .onboarding__body {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: var(--leading-normal);
   color: var(--on-overlay);
   text-wrap: pretty;
 }
 
 .onboarding__footer {
-  font-size: 13px;
+  font-size: var(--text-small);
   color: var(--on-overlay);
 }
 
@@ -674,7 +678,7 @@ button.page-dots__dot {
   /* No room for both. The form wins — pushing a sign-in field below the fold
      to make space for the brand deck is the wrong trade on a phone. */
   .split-auth {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .split-auth__brand {
@@ -697,7 +701,7 @@ button.page-dots__dot {
 .signin__title {
   margin: 0;
   font-family: var(--font-brand);
-  font-size: 28px;
+  font-size: var(--text-display);
   font-weight: var(--weight-bold);
   line-height: 1.2;
   color: var(--accent);
@@ -795,7 +799,7 @@ button.page-dots__dot {
 .auth-card__title {
   margin: 0;
   font-family: var(--font-brand);
-  font-size: 24px;
+  font-size: var(--text-h1);
   font-weight: var(--weight-bold);
   line-height: 1.2;
   color: var(--accent);
@@ -805,7 +809,7 @@ button.page-dots__dot {
 .auth-card__body {
   margin: 0;
   max-width: 36ch;
-  font-size: 15px;
+  font-size: var(--text-body);
   line-height: var(--leading-normal);
   color: var(--text-secondary);
   text-wrap: pretty;
@@ -845,7 +849,7 @@ button.page-dots__dot {
   border: 1px solid var(--field-border);
   border-radius: var(--radius-md);
   font-family: inherit;
-  font-size: 24px;
+  font-size: var(--text-h1);
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -1108,7 +1112,7 @@ button.page-dots__dot {
 
 .hub-list__subtitle {
   margin: 2px 0 0;
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1137,7 +1141,7 @@ button.page-dots__dot {
 
 .hub-list__figure-caption {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--text-overline);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -1312,38 +1316,63 @@ button.page-dots__dot {
 }
 
 /* ---------------------------------------------------------------------------
- * Modal / Dialog Primitive
- * ------------------------------------------------------------------------ */
-
-/* ---------------------------------------------------------------------------
  * Modal
  *
- * On the native `<dialog>`, so there is no backdrop element to style — the
- * platform paints `::backdrop` and handles the top layer, focus trap and
- * inertness. This replaced a div-based version with its own class names;
- * one set, in the same BEM shape as everything else here.
+ * Two elements, not one. `.modal-host` is the <dialog> itself: the whole
+ * viewport, painting nothing, existing only to centre. `.modal` is the card
+ * you see.
+ *
+ * This replaced a version where the <dialog> *was* the card, centred by the
+ * browser's own `margin: auto` against `inset: 0`. That puts every dialog
+ * against the top of the screen, because auto margins only centre an axis
+ * whose size is definite and the card's height was `auto` behind a
+ * `max-height`. Stating the insets and the height explicitly did not fix it.
+ * Centring is now `place-items: center` on a box that fills the screen,
+ * which has no such failure mode.
+ *
+ * The platform still does the parts worth having: ::backdrop, the top layer,
+ * the focus trap and inertness all come from <dialog>.
  * ------------------------------------------------------------------------ */
 
-.modal {
-  width: min(100%, 440px);
-  max-height: min(88vh, 900px);
+.modal-host {
+  /* Fills the viewport. The UA's own max-width/max-height would otherwise
+     inset it by a couple of em and re-introduce an offset. */
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+
+  /* The host is a frame, not a surface. */
   padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+
+  display: grid;
+  place-items: center;
+}
+
+.modal-host::backdrop { background: rgba(33, 35, 43, 0.45); }
+
+.modal {
+  width: min(100% - 2 * var(--space-5), 440px);
+  max-height: min(88dvh, 900px);
+
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
   color: var(--text-primary);
   box-shadow: 0 24px 48px rgba(33, 35, 43, 0.24);
+
   /* Grid so the body scrolls between a pinned head and foot, rather than
-     the dialog growing past the viewport. */
+     the card growing past the viewport. */
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
 }
 
-.modal--md { width: min(100%, 560px); }
-.modal--lg { width: min(100%, 880px); }
-
-.modal::backdrop { background: rgba(33, 35, 43, 0.45); }
+.modal--md { width: min(100% - 2 * var(--space-5), 560px); }
+.modal--lg { width: min(100% - 2 * var(--space-5), 880px); }
 
 .modal__head {
   display: flex;
@@ -1455,3 +1484,13 @@ button.page-dots__dot {
   color: var(--text-muted);
 }
 
+
+
+/* A form as a single column of fields. Replaces the inline
+   `style={{ display: 'flex', flexDirection: 'column', gap: 16 }}` that every
+   modal form was carrying its own copy of. */
+.stack-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}

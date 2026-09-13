@@ -274,7 +274,7 @@
 .ledger {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 
 /*
@@ -321,7 +321,7 @@
 
 .ledger__code {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-small);
   white-space: nowrap;
 }
 
@@ -433,7 +433,7 @@
   border-radius: var(--radius-sm);
   background: var(--accent-subtle);
   color: var(--accent-hover);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;

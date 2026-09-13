@@ -115,7 +115,31 @@ export const NAVIGATION: readonly NavGroup[] = [
       // Readable by every role, and the server scopes the rows: a warehouse
       // clerk sees their site, a school sees the warehouse that serves it.
       { label: 'Inventory', path: '/inventory', requires: null, icon: 'Boxes' },
+
+      /*
+       * The audit trail — every movement of one SKU, in order. A separate
+       * destination from Inventory because they answer different questions:
+       * Inventory says how much is there, this says how it got that way.
+       * Warehouse staff see their own site; Finance and the leads see all.
+       */
+      { label: 'Stock History', path: '/stock-history', requires: null, icon: 'History' },
+
       { label: 'Uniform Kits', path: '/kits', requires: null, icon: 'Shirt' },
+
+      /*
+       * Garments, SKUs and pricing had no destination at all until
+       * 13 September — not placeholders, simply absent, which made the app
+       * look finished while the tables everything else is built on had no
+       * way in. A production order needs SKUs; a SKU needs a garment; an
+       * order needs a price.
+       *
+       * Garments are leads-only per F05, which is narrower than SKUs
+       * (view-only for everyone) — see open question 6, since a SKU already
+       * shows its garment's name.
+       */
+      { label: 'Garments', path: '/garments', requires: 'table_updates', icon: 'Shirt' },
+      { label: 'SKUs', path: '/skus', requires: null, icon: 'Tags' },
+      { label: 'Pricing', path: '/pricing', requires: null, icon: 'Coins' },
     ],
   },
   {

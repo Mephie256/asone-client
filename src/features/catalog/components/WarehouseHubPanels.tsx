@@ -18,8 +18,7 @@
  */
 
 import { FileText, Package } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { Badge, SkeletonRows } from '@/components'
+import { Badge, Panel, SkeletonRows } from '@/components'
 import { formatQuantity } from '@/domain/money'
 import { fulfilmentTone } from '@/domain/production'
 import { paths } from '@/routes/paths'
@@ -49,20 +48,26 @@ interface IncomingProductionPanelProps {
 
 export function IncomingProductionPanel({ orders, total, loading }: IncomingProductionPanelProps) {
   return (
-    <div className="hub-panel">
-      <div className="hub-panel__header">
-        <h2 className="hub-panel__title">Incoming Production from TCs</h2>
-        {!loading && total > 0 && (
+    <Panel
+      title="Incoming Production from TCs"
+      busy={loading}
+      meta={
+        !loading && total > 0 ? (
           <Badge tone="info">
             {total} ACTIVE PO{total === 1 ? '' : 'S'}
           </Badge>
-        )}
-      </div>
-
+        ) : undefined
+      }
+      viewAll={
+        !loading && total > ROWS_SHOWN
+          ? { to: paths.productionOrders, total, noun: 'production orders' }
+          : undefined
+      }
+    >
       {loading ? (
         <SkeletonRows rows={3} />
       ) : orders.length === 0 ? (
-        <p className="hub-panel__empty">No production orders are open on this warehouse.</p>
+        <p className="panel__clear">No production orders are open on this warehouse.</p>
       ) : (
         orders.slice(0, ROWS_SHOWN).map((order) => (
           <div className="hub-card-item" key={order.id}>
@@ -84,12 +89,7 @@ export function IncomingProductionPanel({ orders, total, loading }: IncomingProd
         ))
       )}
 
-      {!loading && total > ROWS_SHOWN && (
-        <Link to={paths.productionOrders} className="hub-panel__link">
-          View all {total} production orders
-        </Link>
-      )}
-    </div>
+    </Panel>
   )
 }
 
@@ -102,16 +102,19 @@ export function LowStockAlertsPanel({ alerts, loading }: LowStockAlertsPanelProp
   const shown = alerts.slice(0, ROWS_SHOWN)
 
   return (
-    <div className="hub-panel">
-      <div className="hub-panel__header">
-        <h2 className="hub-panel__title">Low Stock Alerts</h2>
-        {!loading && alerts.length > 0 && <Badge tone="error">{alerts.length} Critical</Badge>}
-      </div>
-
+    <Panel
+      title="Low Stock Alerts"
+      busy={loading}
+      meta={
+        !loading && alerts.length > 0 ? (
+          <Badge tone="error">{alerts.length} Critical</Badge>
+        ) : undefined
+      }
+    >
       {loading ? (
         <SkeletonRows rows={3} />
       ) : alerts.length === 0 ? (
-        <p className="hub-panel__empty">Nothing is below its reorder floor at this warehouse.</p>
+        <p className="panel__clear">Nothing is below its reorder floor at this warehouse.</p>
       ) : (
         shown.map((alert) => (
           <div className="hub-card-item" key={alert.sku_number}>
@@ -119,11 +122,11 @@ export function LowStockAlertsPanel({ alerts, loading }: LowStockAlertsPanelProp
               <p className="hub-card-item__title">{alert.sku_number}</p>
               <p className="hub-card-item__subtitle">{alert.sku_description}</p>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: 0, fontWeight: 700, color: '#dc2626', fontSize: 14 }}>
+            <div className="hub-card-item__figure">
+              <p className="hub-card-item__figure-value">
                 {formatQuantity(alert.level)} units
               </p>
-              <p style={{ margin: '2px 0 0', fontSize: 11, color: '#94a3b8' }}>
+              <p className="hub-card-item__figure-note">
                 Safety Limit: {formatQuantity(alert.minimum)}
               </p>
             </div>
@@ -132,9 +135,9 @@ export function LowStockAlertsPanel({ alerts, loading }: LowStockAlertsPanelProp
       )}
 
       {!loading && alerts.length > shown.length && (
-        <p className="hub-panel__empty">+{alerts.length - shown.length} more below floor</p>
+        <p className="panel__clear">+{alerts.length - shown.length} more below floor</p>
       )}
-    </div>
+    </Panel>
   )
 }
 
@@ -146,20 +149,19 @@ interface PickingQueuePanelProps {
 
 export function PickingQueuePanel({ orders, total, loading }: PickingQueuePanelProps) {
   return (
-    <div className="hub-panel">
-      <div className="hub-panel__header">
-        <h2 className="hub-panel__title">Active Picking Queue</h2>
-        {!loading && total > ROWS_SHOWN && (
-          <Link to="/orders" className="hub-panel__link">
-            View All Queue
-          </Link>
-        )}
-      </div>
-
+    <Panel
+      title="Active Picking Queue"
+      busy={loading}
+      viewAll={
+        !loading && total > ROWS_SHOWN
+          ? { to: paths.orders, total, noun: 'orders' }
+          : undefined
+      }
+    >
       {loading ? (
         <SkeletonRows rows={3} />
       ) : orders.length === 0 ? (
-        <p className="hub-panel__empty">Nothing picked is waiting on a shipment.</p>
+        <p className="panel__clear">Nothing picked is waiting on a shipment.</p>
       ) : (
         orders.slice(0, ROWS_SHOWN).map((order) => (
           <div className="hub-card-item" key={order.id}>
@@ -178,7 +180,7 @@ export function PickingQueuePanel({ orders, total, loading }: PickingQueuePanelP
           </div>
         ))
       )}
-    </div>
+    </Panel>
   )
 }
 
@@ -192,15 +194,11 @@ export function DispatchLogPanel({ shipments, total, loading }: DispatchLogPanel
   const shown = shipments.slice(0, ROWS_SHOWN)
 
   return (
-    <div className="hub-panel">
-      <div className="hub-panel__header">
-        <h2 className="hub-panel__title">Recent Dispatch Logs</h2>
-      </div>
-
+    <Panel title="Recent Dispatch Logs" busy={loading}>
       {loading ? (
         <SkeletonRows rows={3} />
       ) : shipments.length === 0 ? (
-        <p className="hub-panel__empty">Nothing has shipped from this warehouse yet.</p>
+        <p className="panel__clear">Nothing has shipped from this warehouse yet.</p>
       ) : (
         shown.map((shipment) => (
           <div className="hub-dispatch-item" key={shipment.id}>
@@ -230,8 +228,8 @@ export function DispatchLogPanel({ shipments, total, loading }: DispatchLogPanel
       )}
 
       {!loading && total > shown.length && (
-        <p className="hub-panel__empty">+{total - shown.length} more dispatched</p>
+        <p className="panel__clear">+{total - shown.length} more dispatched</p>
       )}
-    </div>
+    </Panel>
   )
 }

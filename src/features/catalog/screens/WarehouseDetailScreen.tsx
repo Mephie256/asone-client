@@ -59,15 +59,15 @@ export function WarehouseDetailScreen() {
 
   return (
     <AppShell title={`${warehouse.name} Hub Console`}>
-      <header className="school-detail-header" style={{ marginBottom: 4 }}>
-        <p className="school-detail__overline">
-          <Link to={paths.warehouses} style={{ color: 'inherit', textDecoration: 'none' }}>
+      <header className="page-head">
+        <p className="page-head__eyebrow">
+          <Link to={paths.warehouses}>
             WAREHOUSES
           </Link>{' '}
           / {warehouse.name.toUpperCase()} HUB
         </p>
-        <h1 className="school-detail__main-title">{warehouse.name} Hub Console</h1>
-        <p className="school-detail__subtitle">
+        <h1 className="page-head__title">{warehouse.name} Hub Console</h1>
+        <p className="page-head__subtitle">
           Detailed stock levels, upcoming production runs, and lakeside distribution logs.
         </p>
       </header>

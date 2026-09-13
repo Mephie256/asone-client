@@ -6,7 +6,7 @@
 
 .shell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--surface);
 }
@@ -287,7 +287,7 @@
   border-radius: 10px;
   background: var(--error);
   color: var(--text-on-accent);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: var(--weight-bold);
   line-height: 1.2;
 }
@@ -296,7 +296,7 @@
   /* Below this the sidebar costs more than it gives. A drawer is the right
      answer; the mobile designs will say which. Until then it collapses to
      icons so the content column keeps its width. */
-  .shell { grid-template-columns: 72px 1fr; }
+  .shell { grid-template-columns: 72px minmax(0, 1fr); }
   .sidebar { padding: 20px var(--space-2); }
   .sidebar__wordmark,
   .sidebar__group-label,
@@ -320,7 +320,7 @@
 
 .page-head__eyebrow {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--text-overline);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -336,9 +336,18 @@
   text-decoration: underline;
 }
 
+/* A heading wraps rather than truncating — a title cut mid-word tells the
+   reader less than a title on two lines. `anywhere` so a long unbroken name
+   breaks instead of pushing the layout wide. */
+.page-head__title,
+.page-head__subtitle,
+.page-head__eyebrow {
+  overflow-wrap: anywhere;
+}
+
 .page-head__title {
   margin: 0;
-  font-size: 24px;
+  font-size: var(--text-h1);
   font-weight: var(--weight-bold);
   line-height: 1.2;
   color: var(--accent);
@@ -409,7 +418,7 @@
   align-self: flex-start;
   padding: 1px var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;

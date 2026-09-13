@@ -429,7 +429,7 @@
 .manifest__timestamp {
   margin: var(--space-2) 0 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--text-overline);
   color: var(--accent-hover);
 }
 
@@ -456,7 +456,7 @@
 
 .manifest__sign-note {
   margin: var(--space-2) 0 0;
-  font-size: 11px;
+  font-size: var(--text-overline);
   color: var(--text-muted);
   text-align: center;
 }

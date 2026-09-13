@@ -10,10 +10,17 @@
 
 import { ChevronDown } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { Alert, Modal } from '@/components'
+import { Alert, Button, Modal } from '@/components'
 import { toApiError } from '@/api/errors'
 import type { School, SchoolLevel, Warehouse } from '@/api/types'
 import { useSaveSchool } from '../hooks/useSaveSchool'
+
+/*
+ * The submit button sits in the modal's footer, outside the <form>, so it
+ * carries `form={FORM_ID}` — that is what keeps Enter-to-submit and native
+ * validation working from a button the form does not contain.
+ */
+const FORM_ID = 'add-school-form'
 
 interface AddSchoolModalProps {
   isOpen: boolean
@@ -96,8 +103,22 @@ export function AddSchoolModal({
           : 'Register a new school and assign it to a dispatch warehouse.'
       }
       size="md"
+      footer={
+        <div className="modal__foot-actions">
+          <Button variant="secondary" onClick={handleClose} disabled={save.isPending}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form={FORM_ID}
+            disabled={save.isPending || !name.trim() || !level || !effectiveWarehouseId}
+          >
+            {save.isPending ? 'Saving…' : school ? 'Save Changes' : 'Add School'}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="stack-form">
         {error && !error.fields && <Alert tone="error">{error.message}</Alert>}
 
         <div className="schools-form-field">
@@ -188,37 +209,6 @@ export function AddSchoolModal({
           )}
         </div>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 10,
-            marginTop: 8,
-            paddingTop: 16,
-            borderTop: '1px solid #f1f5f9',
-          }}
-        >
-          <button
-            type="button"
-            className="schools-modal-btn-secondary"
-            onClick={handleClose}
-            disabled={save.isPending}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="schools-modal-btn-primary"
-            disabled={save.isPending || !name.trim() || !level || !effectiveWarehouseId}
-          >
-            {save.isPending
-              ? 'Saving…'
-              : school
-                ? 'Save Changes'
-                : 'Add School'}
-          </button>
-        </div>
       </form>
     </Modal>
   )

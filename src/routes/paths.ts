@@ -19,5 +19,6 @@ export const paths = {
   warehouseDetail: (id: number | string) => `/warehouses/${id}`,
   tailoringCenters: '/tailoring-centers',
   inventory: '/inventory',
+  orders: '/orders',
   productionOrders: '/production-orders',
 } as const

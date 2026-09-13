@@ -12,23 +12,18 @@
  * Schools list screen styling (Figma pixel-perfect match)
  * ------------------------------------------------------------------------ */
 
-.schools-page-head {
-  padding: 4px 0 16px 0;
-}
-
-.schools-page-head__title {
-  margin: 0 0 6px 0;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text-primary);
-}
-
-.schools-page-head__subtitle {
-  margin: 0;
-  font-size: var(--text-body);
-  color: var(--text-muted);
-}
+/*
+ * The Schools page used to carry its own page head — `.schools-page-head`
+ * and friends — a near-copy of the shared one in shell.css that had drifted
+ * on four counts: the title was --text-primary where every other page title
+ * is --accent (so "Schools" was the only dark heading in the system), the
+ * subtitle was a size and colour of its own, the weight was a literal 700
+ * rather than the token, and the padding was hardcoded pixels.
+ *
+ * Deleted rather than corrected. A second copy of a shared component only
+ * drifts again; the screen now uses `.page-head` like Warehouses and
+ * Tailoring Centers.
+ */
 
 .schools-filter-card {
   display: flex;
@@ -223,32 +218,21 @@
  * Detail head & summary card
  * ------------------------------------------------------------------------ */
 
-.school-detail-header {
-  padding: 0 0 16px 0;
-}
-
-.school-detail__overline {
-  margin: 0 0 4px 0;
-  font-size: var(--text-overline);
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.school-detail__main-title {
-  margin: 0 0 4px 0;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--text-primary);
-}
-
-.school-detail__subtitle {
-  margin: 0;
-  font-size: var(--text-body);
-  color: var(--text-muted);
-}
+/*
+ * The detail screens used to carry `.school-detail-header` and friends — a
+ * third near-copy of `.page-head`, used on the *warehouse* page as well as
+ * the school one, which is how a page about warehouses came to be styled
+ * with classes named after schools.
+ *
+ * It had drifted the same way `.schools-page-head` did: the title was
+ * --text-primary where every other page title is --accent, the weight was a
+ * literal 700, the margins were hardcoded pixels, and the subtitle had a
+ * size and colour of its own. Both screens also carried inline styles
+ * re-doing what `.page-head__eyebrow a` already does.
+ *
+ * Deleted. `.page-head` has an eyebrow, a title and a subtitle, which is
+ * exactly what a detail screen needs.
+ */
 
 .school-summary-card {
   margin-top: var(--space-4);
@@ -275,7 +259,7 @@
 
 .school-summary-card__title {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-subhead);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -397,20 +381,20 @@
 
 .school-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
   margin-top: 18px;
 }
 
 @media (max-width: 960px) {
   .school-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 540px) {
   .school-kpi-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -425,7 +409,7 @@
 }
 
 .school-kpi-card__value {
-  font-size: 26px;
+  font-size: var(--text-display);
   font-weight: 700;
   line-height: 1.1;
   color: var(--text-primary);
@@ -725,14 +709,14 @@
 
 .site-card-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-top: 20px;
 }
 
 @media (max-width: 900px) {
   .site-card-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -759,9 +743,17 @@
   gap: var(--space-2);
 }
 
+/* Same reasoning as the page head: wrap, do not truncate. A warehouse's
+   name is the one thing on the card nobody should have to guess at. */
+.site-card__title,
+.site-card__address,
+.site-card__meta-line {
+  overflow-wrap: anywhere;
+}
+
 .site-card__title {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--text-subhead);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -771,6 +763,10 @@
   font-size: var(--text-body);
   color: var(--text-muted);
 }
+
+/* The Compass had `color="#64748b"` inline. Icons here take the muted tone
+   like every other icon in the system. */
+.site-card__meta-line svg { color: var(--text-muted); }
 
 .site-card__meta-line {
   display: flex;
@@ -790,13 +786,13 @@
 
 .site-card__stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
 @media (max-width: 640px) {
   .site-card__stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -816,7 +812,7 @@
   display: flex;
   align-items: flex-start;
   min-height: 25px;
-  font-size: 10px;
+  font-size: var(--text-micro);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -829,7 +825,7 @@
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
-  font-size: 19px;
+  font-size: var(--text-h2);
   font-weight: 700;
   line-height: 1;
   color: var(--text-primary);
@@ -853,7 +849,7 @@
 
 .site-card__actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-3);
 }
 
@@ -944,20 +940,20 @@
 
 .hub-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-4);
   margin-top: 18px;
 }
 
 @media (max-width: 960px) {
   .hub-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 540px) {
   .hub-kpi-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -977,13 +973,21 @@
   margin-bottom: var(--space-2);
 }
 
+/* A figure should never be the thing that widens a column. */
+.hub-kpi-card__label,
+.hub-kpi-card__caption {
+  overflow-wrap: anywhere;
+}
+
 .hub-kpi-card__value {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
   line-height: 1.1;
-  color: var(--text-primary);
+  /* Green, as the design has it — these are the console's headline figures,
+     not body text that happens to be large. */
+  color: var(--accent);
   font-variant-numeric: tabular-nums;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1);
 }
 
 .hub-kpi-card__caption {
@@ -993,50 +997,28 @@
 
 .hub-grid-2x2 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-top: 20px;
 }
 
 @media (max-width: 1024px) {
   .hub-grid-2x2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-.hub-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-}
-
-.hub-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-}
-
-.hub-panel__title {
-  margin: 0;
-  font-size: var(--text-h3);
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.hub-panel__link {
-  font-size: var(--text-body);
-  font-weight: 600;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.hub-panel__link:hover {
-  text-decoration: underline;
-}
+/*
+ * `.hub-panel` and its parts lived here — a third panel implementation
+ * alongside the shared `.panel` and the dashboard's use of it. It differed
+ * in padding (20px 22px against 20px) and, more visibly, in title size:
+ * --text-h3 where every other panel in the system uses --text-caption. That
+ * is why the Hub Console read as a different application.
+ *
+ * Deleted. The four panels are the shared `Panel` component, which already
+ * carries a title, a meta slot, a view-all link and a busy state — which is
+ * everything they were hand-rolling.
+ */
 
 .hub-card-item {
   display: flex;
@@ -1115,7 +1097,16 @@
 .hub-dispatch-item__left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
+  /* Without this a long school name cannot shrink and shoves the status
+     badge past the edge of the panel. `.hub-card-item__left` had it; this
+     one was missed. */
+  min-width: 0;
+}
+
+/* The text column inside it, same reason. */
+.hub-dispatch-item__left > div {
+  min-width: 0;
 }
 
 .hub-dispatch-item__dot {
@@ -1128,13 +1119,6 @@
 
 /* An empty queue or an overflow note — no row to style, just a line of
    muted text. */
-.hub-panel__empty {
-  margin: 0;
-  padding: 12px 4px;
-  font-size: var(--text-body);
-  color: var(--text-muted);
-}
-
 /* ---------------------------------------------------------------------------
  * Tailoring Center Full-Width Cards
  * ------------------------------------------------------------------------ */
@@ -1158,7 +1142,7 @@
 
 .tc-card__title {
   margin: 0 0 6px 0;
-  font-size: 18px;
+  font-size: var(--text-subhead);
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -1275,6 +1259,9 @@
 
 /* Dispatch log rows. Was inline styles with hardcoded hex and px. */
 .hub-dispatch-item__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
   font-weight: var(--weight-bold);
   color: var(--text-primary);
@@ -1282,7 +1269,33 @@
 }
 
 .hub-dispatch-item__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: var(--space-1) 0 0;
   color: var(--text-muted);
   font-size: var(--text-caption);
+}
+
+
+/* The figure on the right of a hub row — a level against its floor.
+   Replaces four inline styles carrying raw hexes and pixel sizes. */
+.hub-card-item__figure {
+  text-align: right;
+  flex: none;
+}
+
+.hub-card-item__figure-value {
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
+  /* Below its floor is the whole reason the row is here. */
+  color: var(--error);
+  font-variant-numeric: tabular-nums;
+}
+
+.hub-card-item__figure-note {
+  margin: 2px 0 0;
+  font-size: var(--text-overline);
+  color: var(--text-muted);
 }

@@ -10,6 +10,20 @@
  * rather than allowed to close silently, so a half-typed form can ask first.
  * **The backdrop does not close it** — a misplaced click should not discard
  * what somebody was in the middle of.
+ *
+ * ## Why there are two elements and not one
+ *
+ * The `<dialog>` is the full viewport and paints nothing; the card inside it
+ * is what you see. Centring is then `place-items: center` on a box of known
+ * size, which cannot go wrong.
+ *
+ * The obvious version — style the `<dialog>` itself as the card and let the
+ * browser centre it — is what this replaced, and it put every dialog against
+ * the top of the screen. A dialog is centred by `margin: auto` against
+ * `inset: 0`, and auto margins only centre an axis whose size is definite.
+ * The height was `auto` behind a `max-height`, so the vertical margins
+ * resolved to zero. Three attempts to state it more explicitly did not shift
+ * it. This does not rely on that mechanism at all.
  */
 
 import { useEffect, useId, useRef, type ReactNode } from 'react'
@@ -57,7 +71,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className={`modal modal--${size}`}
+      className="modal-host"
       aria-labelledby={titleId}
       onCancel={(event) => {
         // Escape: let the owner decide rather than discarding silently.
@@ -65,21 +79,23 @@ export function Modal({
         onClose()
       }}
     >
-      <header className="modal__head">
-        <div>
-          <h2 className="modal__title" id={titleId}>
-            {title}
-          </h2>
-          {subtitle && <p className="modal__subtitle">{subtitle}</p>}
-        </div>
-        <button type="button" className="modal__close" aria-label="Close" onClick={onClose}>
-          <X size={18} aria-hidden />
-        </button>
-      </header>
+      <div className={`modal modal--${size}`}>
+        <header className="modal__head">
+          <div>
+            <h2 className="modal__title" id={titleId}>
+              {title}
+            </h2>
+            {subtitle && <p className="modal__subtitle">{subtitle}</p>}
+          </div>
+          <button type="button" className="modal__close" aria-label="Close" onClick={onClose}>
+            <X size={18} aria-hidden />
+          </button>
+        </header>
 
-      <div className="modal__body">{children}</div>
+        <div className="modal__body">{children}</div>
 
-      {footer && <footer className="modal__foot">{footer}</footer>}
+        {footer && <footer className="modal__foot">{footer}</footer>}
+      </div>
     </dialog>
   )
 }

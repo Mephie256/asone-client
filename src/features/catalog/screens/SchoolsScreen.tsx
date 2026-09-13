@@ -39,9 +39,9 @@ export function SchoolsScreen() {
 
   return (
     <AppShell title="Schools">
-      <header className="schools-page-head">
-        <h1 className="schools-page-head__title">Schools</h1>
-        <p className="schools-page-head__subtitle">
+      <header className="page-head">
+        <h1 className="page-head__title">Schools</h1>
+        <p className="page-head__subtitle">
           Manage uniform programs, student enrollment ratios, and school dispatch hubs.
         </p>
       </header>

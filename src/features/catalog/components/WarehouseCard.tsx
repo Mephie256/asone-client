@@ -8,10 +8,16 @@
  * the server actually has — the server models a missing one as `null`,
  * which is a legitimate state, not a gap to paper over with a guessed
  * street name or a made-up tailoring centre.
+ *
+ * The two actions are the shared `Button`. They were `schools-modal-btn-*`
+ * — the Schools modal's buttons, borrowed for a warehouse card — which is
+ * how a card came to depend on a screen it has nothing to do with. The
+ * Compass took its colour from a literal hex; it now inherits, like every
+ * other icon here.
  */
 
 import { Compass } from 'lucide-react'
-import { AnimatedNumber, Badge } from '@/components'
+import { AnimatedNumber, Badge, Button } from '@/components'
 import type { DashboardSummary, Warehouse } from '@/api/types'
 
 interface WarehouseCardProps {
@@ -47,7 +53,7 @@ export function WarehouseCard({
       </div>
 
       <p className="site-card__meta-line">
-        <Compass size={15} color="#64748b" aria-hidden />
+        <Compass size={15} aria-hidden />
         Primary Tailoring: <strong>{warehouse.primary_tailoring_center_name || 'Not set'}</strong>
       </p>
 
@@ -89,12 +95,12 @@ export function WarehouseCard({
       </div>
 
       <div className="site-card__actions">
-        <button type="button" className="schools-modal-btn-primary" onClick={onViewDashboard}>
+        <Button onClick={onViewDashboard} full>
           View Dashboard
-        </button>
-        <button type="button" className="schools-modal-btn-secondary" onClick={onViewInventory}>
+        </Button>
+        <Button variant="secondary" onClick={onViewInventory} full>
           View Inventory
-        </button>
+        </Button>
       </div>
     </div>
   )

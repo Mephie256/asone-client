@@ -181,13 +181,39 @@
   --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
 
   /* The scale is fixed by the spec, not fluid. This is a dense operations
-     tool used all day; predictable sizing beats responsive type here. */
-  --text-h1: 28px;             /* Ivy Mode */
-  --text-h2: 20px;             /* Proxima Nova Bold */
-  --text-h3: 16px;             /* Proxima Nova Bold */
-  --text-body: 14px;           /* Proxima Nova Regular */
-  --text-caption: 12px;        /* Proxima Nova Regular */
-  --text-overline: 11px;       /* Proxima Nova Bold, uppercase */
+     tool used all day; predictable sizing beats responsive type here.
+     
+     Every size derives from --text-scale, so the whole system can be made
+     larger or smaller by changing one number. Bashir asked for a larger
+     system-wide size on 13 September; 1.125 raises body text from 14px to
+     16px, which is the size most interfaces settle on for prolonged
+     reading. Warehouse and school staff use this all day, often on older
+     screens.
+     
+     NOTE: this deviates from the Figma spec, which set 14px body. Worth
+     telling the designer rather than letting them find it. */
+  --text-scale: 1.125;
+
+  /*
+   * One step per role, and nothing between them. Before this the
+   * stylesheets carried 36 hardcoded sizes and twelve distinct values, so
+   * the same thing was a different size depending on which screen you were
+   * on — KPI figures appeared at 28px, 26px, 20px and 19px, and card titles
+   * at 17px and 18px in the same file. That is what made the Locations
+   * screens look unlike the rest.
+   *
+   * Pick by what the text *is*, never by how big it should look.
+   */
+  --text-display: calc(28px * var(--text-scale));   /* big figures, sign-in title */
+  --text-h1: calc(24px * var(--text-scale));        /* page titles */
+  --text-h2: calc(20px * var(--text-scale));        /* section headings, medium figures */
+  --text-subhead: calc(18px * var(--text-scale));   /* card titles */
+  --text-h3: calc(16px * var(--text-scale));        /* sub-headings within a panel */
+  --text-body: calc(14px * var(--text-scale));      /* prose, inputs, most labels */
+  --text-small: calc(13px * var(--text-scale));     /* dense tables */
+  --text-caption: calc(12px * var(--text-scale));   /* secondary detail */
+  --text-overline: calc(11px * var(--text-scale));  /* uppercase eyebrows */
+  --text-micro: calc(10px * var(--text-scale));     /* tags and badges */
 
   --leading-tight: 1.2;
   --leading-normal: 1.5;
@@ -269,3 +295,20 @@
 
   color-scheme: light;
 }
+
+
+/* ---------------------------------------------------------------------------
+ * A note on grid tracks — GRID TRACKS
+ *
+ * Every `1fr` in this codebase is written `minmax(0, 1fr)`, and it matters.
+ *
+ * A bare `1fr` track carries an implicit `min-width: auto`, so a grid item
+ * will not go narrower than its own content. One long SKU description or
+ * school name inside a panel widens its column, the grid outgrows its
+ * container, and the whole page scrolls sideways — which is what the
+ * warehouse hub console was doing.
+ *
+ * `minmax(0, 1fr)` is the same track, also allowed to be small. It is the
+ * grid counterpart of `min-width: 0` on a flex child, and it is forgotten
+ * just as often.
+ * ------------------------------------------------------------------------ */

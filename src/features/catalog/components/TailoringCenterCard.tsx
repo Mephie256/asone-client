@@ -93,7 +93,7 @@ export function TailoringCenterCard({ center }: TailoringCenterCardProps) {
       {isLoading ? (
         <SkeletonRows rows={2} />
       ) : orders.length === 0 ? (
-        <p className="hub-panel__empty">No production orders raised on this centre yet.</p>
+        <p className="panel__clear">No production orders raised on this centre yet.</p>
       ) : (
         <div className="tc-card__table-wrap">
           <table className="tc-card__table">
