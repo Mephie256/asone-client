@@ -4710,6 +4710,7 @@ export interface components {
             readonly school?: number;
             readonly school_name?: string;
             readonly warehouse_name?: string;
+            readonly transferred_to_name?: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name?: string;
             /**
@@ -4870,6 +4871,7 @@ export interface components {
             school: number;
             readonly school_name: string;
             readonly warehouse_name: string;
+            readonly transferred_to_name: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name: string;
             /**
@@ -5305,6 +5307,7 @@ export interface components {
             readonly school: number;
             readonly school_name: string;
             readonly warehouse_name: string;
+            readonly transferred_to_name: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name: string;
             /**

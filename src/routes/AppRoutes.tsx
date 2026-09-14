@@ -38,7 +38,6 @@ import { NewAdjustmentScreen } from '@/features/adjustments/screens/NewAdjustmen
 import { NewTransferScreen } from '@/features/adjustments/screens/NewTransferScreen'
 import { TransfersScreen } from '@/features/adjustments/screens/TransfersScreen'
 import { BackordersScreen } from '@/features/backorders/screens/BackordersScreen'
-import { ReleaseBackordersScreen } from '@/features/backorders/screens/ReleaseBackordersScreen'
 import { ProductionOrdersScreen } from '@/features/production/screens/ProductionOrdersScreen'
 import { ReceivingScreen } from '@/features/receiving/screens/ReceivingScreen'
 import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetailScreen'
@@ -130,17 +129,6 @@ export function AppRoutes() {
               <RequireAuth>
                 <RequireAccess requires="warehouse_receiving_and_shipping">
                   <ShipmentDetailScreen />
-                </RequireAccess>
-              </RequireAuth>
-            }
-          />
-
-          <Route
-            path="/backorders/release"
-            element={
-              <RequireAuth>
-                <RequireAccess requires="warehouse_receiving_and_shipping">
-                  <ReleaseBackordersScreen />
                 </RequireAccess>
               </RequireAuth>
             }

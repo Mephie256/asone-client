@@ -103,13 +103,16 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   },
   {
     path: '/backorders',
-    title: 'Backorders',
+    title: 'Orders Waiting for Stock',
     points: [
-      'A backorder is what is left when a warehouse picks an order short. One row per garment, so an order short on three items becomes three rows that can be handled separately.',
-      'Available counts stock at every warehouse, not just this one. Another warehouse can ship straight to the school, so a shortfall here is fillable if the goods exist anywhere.',
-      'Release hands the job to the warehouse holding the most of that garment and ships it direct to the school. The goods do not come back through the warehouse that ran short.',
-      'View TC appears when no warehouse has the stock. Nothing can be transferred, so the answer is to have more made rather than to move what does not exist.',
-      'Releasing is all or nothing. If one line cannot be filled by the time you confirm, none of them go, and the message says which line stopped it.',
+      'If a warehouse cannot fill every line of a paid order, nothing ships. The order is held whole until stock arrives or somebody hands it to a warehouse that has it. There is no part-shipping \u2014 a school never gets a parcel with half the uniform in it.',
+      'That is why one missing shirt holds the trousers too, and why this queue lists orders rather than garments.',
+      'Oldest first. That is the rule, not a default: it is the sequence the schools placed them in. Working down from the top is what the pack asks the warehouse to do.',
+      'Nothing here is created or resolved. An order appears when it is paid for and short, and leaves on its own the moment stock arrives \u2014 there is no status to set and nothing to tidy up.',
+      'Waiting on shows every line that is short, and by how much. That is the decision: wait for the next delivery, or move the order.',
+      'Transfer hands the order to a warehouse that holds enough of every line. Only those warehouses are listed, because a site that could fill some of it would only leave the order waiting in a second place.',
+      'A transfer moves responsibility, not goods. No stock is reserved anywhere; the receiving warehouse picks in the ordinary way and ships direct to the school. The school keeps its own warehouse for everything it orders next.',
+      'Refusals say why in plain words, with the numbers \u2014 which line, how many are needed, how many are there. Read them rather than retrying.',
     ],
   },
   {

@@ -105,6 +105,19 @@ export function TransferDetailModal({ transfer, onClose }: TransferDetailModalPr
         </div>
       </dl>
 
+      {/*
+        The dialog never grows past the viewport: `.modal` is capped and
+        `.modal__body` scrolls between a pinned head and footer, so a transfer
+        with thirty lines scrolls rather than running off the screen. What a
+        long list still needs is a heading that says how long it is, before
+        anyone starts scrolling, and a table header that stays put once they
+        do — see `.modal__body .ledger thead th`.
+      */}
+      <h3 className="detail-notes__title">
+        {transfer.lines.length} {transfer.lines.length === 1 ? 'item' : 'items'} ·{' '}
+        {formatQuantity(units)} units
+      </h3>
+
       <div className="table-scroll">
         <table className="ledger">
           <thead>

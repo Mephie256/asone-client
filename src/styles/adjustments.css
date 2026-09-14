@@ -328,3 +328,73 @@ button.ledger__link {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 18%, transparent);
 }
+
+/* 08 / Long tables inside a dialog ---------------------------------------- */
+
+/*
+ * A transfer can carry thirty SKUs. The dialog itself already copes — it is
+ * capped at 88dvh and its body scrolls between a pinned head and footer, so
+ * it never runs off the screen — but the table's own header used to scroll
+ * away with the rows, leaving a column of bare numbers with nothing saying
+ * which was quantity and which was a code.
+ *
+ * Sticky against the scrolling body, so the header stays and the totals row
+ * still arrives at the end where it belongs.
+ */
+.modal__body .ledger thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* The dialog's own padding already frames the table; a second inset makes
+   the rows look indented rather than aligned with everything above them. */
+.modal__body .table-scroll { margin: 0 0 var(--space-4); }
+
+.modal__body .ledger tfoot td {
+  border-top: 1px solid var(--border);
+  border-bottom: 0;
+  font-weight: var(--weight-bold);
+}
+
+/* 09 / What an order is waiting on ---------------------------------------- */
+
+/*
+ * Every short line, on the row rather than behind a click. A count would say
+ * an order is stuck; these say what would unstick it, and that is the
+ * decision the clerk is actually making — wait for the next delivery, or
+ * move the order to a warehouse that has it.
+ */
+.shortfalls {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shortfalls__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.shortfalls__sku {
+  font-family: var(--font-mono, inherit);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.shortfalls__desc { color: var(--text-secondary); }
+
+/* The number that decides it. Red because it is a deficit, not a total. */
+.shortfalls__gap {
+  color: var(--error);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+/* The FIFO note under the queue. */
+.table-card__note svg { vertical-align: -2px; margin-right: var(--space-1); }

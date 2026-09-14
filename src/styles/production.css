@@ -327,6 +327,13 @@
 
 .line-note strong { color: var(--text-primary); }
 
+/*
+ * `.line-note` was written for a `<p>`. Inside a table cell it has to be a
+ * `<span>` — a paragraph is not valid there — and inline it ran straight on
+ * from the code above it: "100016Blue Tunic Blue size 12".
+ */
+span.line-note { display: block; }
+
 .callout--warning svg { vertical-align: -3px; margin-right: var(--space-2); }
 
 .card-panel__note--warning { color: var(--warning); }

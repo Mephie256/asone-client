@@ -117,8 +117,14 @@ export const NAVIGATION: readonly NavGroup[] = [
           canMoveStockBetweenWarehouses(user) && !can(user, 'inventory_adjustments'),
         icon: 'ArrowLeftRight',
       },
+      /*
+       * "Awaiting Stock", not "Backorders". There is no backorder record to
+       * manage — an order is here because it is paid for and its warehouse is
+       * short, and it leaves when that stops being true. The old name had
+       * clerks looking for something to create or resolve.
+       */
       {
-        label: 'Backorders',
+        label: 'Awaiting Stock',
         path: '/backorders',
         requires: 'backorder_transfers',
         icon: 'Clock',
