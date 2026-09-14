@@ -285,3 +285,46 @@ button.ledger__link {
   font-weight: var(--weight-medium);
   cursor: pointer;
 }
+
+/*
+ * The panel's footer line: its hint on the left, the date the change
+ * happened on the right.
+ *
+ * Deliberately not a field of its own. The design draws four boxes in this
+ * panel and two below it, and a fifth control would be a row nobody asked
+ * for — but the date still has to be settable, because the server compares
+ * and prices against it rather than against today.
+ */
+.count-panel__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.count-panel__foot > span { flex: 1 1 320px; }
+
+.count-panel__date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  color: var(--text-muted);
+}
+
+.count-panel__date input {
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--text-caption);
+  color: var(--text-primary);
+}
+
+.count-panel__date input:focus-visible {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 18%, transparent);
+}

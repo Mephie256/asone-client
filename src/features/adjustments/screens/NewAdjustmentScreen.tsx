@@ -50,16 +50,16 @@ import {
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react'
-import { Alert, Button, LoadingScreen } from '@/components'
+import { Alert, Button, LoadingScreen, SkuPicker } from '@/components'
 import { toApiError } from '@/api/errors'
-import { todayISO } from '@/domain/dates'
+import { formatDay, todayISO } from '@/domain/dates'
 import {
   ADJUSTMENT_KINDS,
   codesForKind,
   formatSigned,
   type AdjustmentKind,
 } from '@/domain/adjustments'
-import { formatQuantity } from '@/domain/money'
+import { formatQuantity, formatUGX, multiplyMoney } from '@/domain/money'
 import { AppShell } from '@/features/shell/components/AppShell'
 import { useWarehouseFilter } from '@/features/shell/hooks/useWarehouseFilter'
 import { useSkuOptions } from '@/features/catalog/hooks/useSkuOptions'
@@ -90,6 +90,15 @@ export function NewAdjustmentScreen() {
   const [reasonId, setReasonId] = useState<number | null>(null)
   const [quantity, setQuantity] = useState('')
   const [notes, setNotes] = useState('')
+
+  /*
+    The date the change actually happened, which is not always today. A count
+    sheet comes back from the floor on Friday and gets keyed on Monday, and
+    the server compares against what it held *on that date* — so posting it
+    as today would reconcile against the wrong figure and value it at the
+    wrong price.
+  */
+  const [occurredOn, setOccurredOn] = useState(todayISO)
 
   /*
     A warehouse-scoped role has no choice and the topbar filter is the answer.
@@ -180,6 +189,19 @@ export function NewAdjustmentScreen() {
     return reason.direction === 'DECREASE' ? -Math.round(typed) : Math.round(typed)
   }, [hasQuantity, kind, reason, systemStock, typed])
 
+  /**
+   * What this adjustment is worth, at the price on file.
+   *
+   * An estimate, and said to be one: the server prices it again from the
+   * list in force on the date of change, which may not be the list showing
+   * here. Summed through `multiplyMoney` — money is never multiplied with
+   * `*` in this system.
+   */
+  const estimate =
+    sku?.unit_price && effect !== null && effect !== 0
+      ? formatUGX(multiplyMoney(sku.unit_price, Math.abs(effect)))
+      : null
+
   /*
     A decrease is posted against AVAILABLE, so it is the available pool that
     has to cover it — not the total on the shelf. Taking units out of stock
@@ -199,6 +221,18 @@ export function NewAdjustmentScreen() {
 
   const sameSite = kind === 'TRANSFER' && destination !== null && destination === warehouse
 
+  /*
+    Stock leaving for a reason nobody wrote down.
+
+    A return has a student behind it and a correction has a count sheet; a
+    loss and a write-off have neither. The reason code says "Damaged", which
+    is a category, not an account of what happened — and AsOne have not
+    settled what a damage does to anyone's books (their question Q6), so this
+    sentence is the only record there will be. Required, not merely invited.
+  */
+  const needsNote = kind === 'LOSS' || kind === 'DAMAGED'
+  const noteMissing = needsNote && notes.trim().length < 10
+
   const ready =
     warehouse !== null &&
     skuId !== null &&
@@ -208,6 +242,7 @@ export function NewAdjustmentScreen() {
     // Each card asks for one more thing before it can post: a transfer needs
     // somewhere to go, the three coded kinds need a code, and a correction
     // needs the count to actually differ.
+    !noteMissing &&
     (kind === 'TRANSFER'
       ? destination !== null && !sameSite && Math.round(typed) > 0
       : kind === 'CORRECTION'
@@ -220,7 +255,7 @@ export function NewAdjustmentScreen() {
     const common = {
       warehouse,
       sku: skuId,
-      adjustment_date: todayISO(),
+      adjustment_date: occurredOn,
       ...(notes.trim() ? { notes: notes.trim() } : {}),
     }
 
@@ -243,7 +278,7 @@ export function NewAdjustmentScreen() {
         {
           from_warehouse: warehouse,
           to_warehouse: destination,
-          transfer_date: todayISO(),
+          transfer_date: occurredOn,
           ...(reasonId ? { reason_code: reasonId } : {}),
           ...(notes.trim() ? { notes: notes.trim() } : {}),
           lines: [{ sku: skuId, quantity: Math.round(typed) }],
@@ -288,7 +323,7 @@ export function NewAdjustmentScreen() {
         <h2 className="card-panel__title card-panel__title--accent">Adjustment Type</h2>
 
         <div className="kind-grid" role="radiogroup" aria-label="Adjustment type">
-          {ADJUSTMENT_KINDS.map((info) => {
+          {ADJUSTMENT_KINDS.map((info, index) => {
             const Icon = ICONS[info.icon] ?? SlidersHorizontal
             const active = info.kind === kind
 
@@ -298,7 +333,36 @@ export function NewAdjustmentScreen() {
                 type="button"
                 role="radio"
                 aria-checked={active}
+                /*
+                  One stop for the whole group, as a radio group should be:
+                  Tab reaches the chosen card, arrows move between them. Five
+                  tab stops in a row is how a keyboard user ends up pressing
+                  Tab twenty times to reach the quantity field.
+                */
+                tabIndex={active ? 0 : -1}
                 className={`kind-card${active ? ' kind-card--active' : ''}`}
+                onKeyDown={(event) => {
+                  const step =
+                    event.key === 'ArrowRight' || event.key === 'ArrowDown'
+                      ? 1
+                      : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+                        ? -1
+                        : 0
+                  if (step === 0) return
+                  event.preventDefault()
+
+                  const next =
+                    ADJUSTMENT_KINDS[
+                      (index + step + ADJUSTMENT_KINDS.length) % ADJUSTMENT_KINDS.length
+                    ]
+                  setKind(next.kind)
+                  setReasonId(null)
+                  // Focus follows selection in a radio group, so the next
+                  // arrow press moves on from where the reader now is.
+                  const group = event.currentTarget.parentElement
+                  const buttons = group?.querySelectorAll<HTMLButtonElement>('button')
+                  buttons?.[ADJUSTMENT_KINDS.indexOf(next)]?.focus()
+                }}
                 onClick={() => {
                   setKind(info.kind)
                   // The old code belongs to the old family, and a reason left
@@ -318,21 +382,13 @@ export function NewAdjustmentScreen() {
         <div className="field-row">
           <div className="field field--stacked">
             <label htmlFor="adj-sku">SKU (Select Uniform Item)</label>
-            <select
+            <SkuPicker
               id="adj-sku"
-              className="input"
-              value={skuId ?? ''}
-              onChange={(event) =>
-                setSkuId(event.target.value ? Number(event.target.value) : null)
-              }
-            >
-              <option value="">Choose a uniform item…</option>
-              {skus.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.number} — {entry.garment_name} size {entry.size_name}
-                </option>
-              ))}
-            </select>
+              label="Uniform item"
+              skus={skus}
+              value={skuId}
+              onChange={setSkuId}
+            />
           </div>
 
           <div className="field field--stacked">
@@ -479,10 +535,32 @@ export function NewAdjustmentScreen() {
               </div>
             </div>
 
-            <p className="field__hint">
-              The system works out the difference and picks the reason code —
-              count up or count down — so nobody counting has to do the
-              subtraction or choose a direction.
+            <p className="field__hint count-panel__foot">
+              <span>
+                The system works out the difference and picks the reason code —
+                count up or count down — so nobody counting has to do the
+                subtraction or choose a direction.
+              </span>
+              {/*
+                On the panel's own hint line rather than as a field of its
+                own, so the form keeps the four boxes the design draws.
+
+                It still has to be here. A count sheet comes off the floor on
+                Friday and gets keyed on Monday, and the server compares
+                against what it held *on this date* — posting it as today
+                reconciles against the wrong figure and values it at the
+                wrong price.
+              */}
+              <label className="count-panel__date">
+                <span>Counted on</span>
+                <input
+                  type="date"
+                  value={occurredOn}
+                  max={todayISO()}
+                  aria-label="Date the count was taken"
+                  onChange={(event) => setOccurredOn(event.target.value || todayISO())}
+                />
+              </label>
             </p>
           </div>
         ) : (
@@ -554,6 +632,24 @@ export function NewAdjustmentScreen() {
                 </output>
               </div>
             </div>
+
+            <p className="field__hint count-panel__foot">
+              <span>
+                {kind === 'TRANSFER'
+                  ? 'Stock leaves the source and arrives at the destination at the same value.'
+                  : 'The reason code decides the direction. Nobody types a sign.'}
+              </span>
+              <label className="count-panel__date">
+                <span>{kind === 'TRANSFER' ? 'Moves on' : 'Happened on'}</span>
+                <input
+                  type="date"
+                  value={occurredOn}
+                  max={todayISO()}
+                  aria-label="Date of the change"
+                  onChange={(event) => setOccurredOn(event.target.value || todayISO())}
+                />
+              </label>
+            </p>
           </div>
         )}
 
@@ -627,11 +723,24 @@ export function NewAdjustmentScreen() {
               rows={3}
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Where it was found, who counted it, which shelf."
+              placeholder={
+                needsNote
+                  ? 'What happened, where, and who found it.'
+                  : 'Where it was found, who counted it, which shelf.'
+              }
+              aria-invalid={noteMissing && notes.trim() !== '' ? true : undefined}
+              aria-required={needsNote || undefined}
             />
+            {noteMissing && notes.trim() !== '' && (
+              <p className="field-error">
+                A sentence, not a word. Whoever reads this row next has only
+                what is written here.
+              </p>
+            )}
             <p className="field__hint">
-              The only place the reason behind the reason code is recorded.
-              An auditor reading this row a year from now has nothing else.
+              {needsNote
+                ? 'Required for a loss or a write-off. The reason code says which category; this says what actually happened, and it is all an auditor will have.'
+                : 'The only place the reason behind the reason code is recorded. An auditor reading this row a year from now has nothing else.'}
             </p>
           </div>
         </div>
@@ -664,6 +773,7 @@ export function NewAdjustmentScreen() {
                 {sourceName} is left with {formatQuantity(availableAfter ?? 0)}{' '}
                 available. No money moves — the stock is worth the same at
                 either site.
+                {occurredOn !== todayISO() && ` Dated ${formatDay(occurredOn)}.`}
               </>
             ) : (
               <>
@@ -671,7 +781,9 @@ export function NewAdjustmentScreen() {
                 {effect < 0 ? 'reduce' : 'increase'} available inventory for{' '}
                 {sku?.number} by {Math.abs(effect)} units at {sourceName},
                 immediately and permanently. Available becomes{' '}
-                {formatQuantity(availableAfter ?? 0)}.
+                {formatQuantity(availableAfter ?? 0)}
+                {estimate ? `, and the change is worth ${estimate}` : ''}.
+                {occurredOn !== todayISO() && ` Dated ${formatDay(occurredOn)}.`}
               </>
             )}
           </Alert>
