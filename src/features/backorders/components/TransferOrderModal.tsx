@@ -63,7 +63,13 @@ export function TransferOrderModal({ entry, onClose }: TransferOrderModalProps) 
   return (
     <Modal
       open
-      size="md"
+      /*
+        Wider than the other dialogs on purpose. This one carries a table
+        whose columns are a description and three numbers, and an order short
+        on several lines fills it — at 560px the descriptions wrapped and the
+        figures a clerk is comparing ended up on different rows.
+      */
+      size="lg"
       title={`Transfer ${entry.order.number}`}
       subtitle={`${entry.order.school_name} · currently ${entry.order.warehouse_name}`}
       onClose={onClose}
