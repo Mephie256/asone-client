@@ -9,6 +9,36 @@
  */
 
 /* ---------------------------------------------------------------------------
+ * Registration — the agree-to-terms row on Create Account
+ *
+ * Lives here rather than components.css for the same reason as everything
+ * else in this file: it belongs to one flow and nothing else reads it.
+ * ------------------------------------------------------------------------ */
+
+.signin__agree {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  /* Sits tight under the field above it rather than a full gap below. */
+  margin-top: calc(var(--space-4) * -1);
+}
+
+.signin__agree input[type='checkbox'] {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+
+.signin__agree a {
+  font-weight: var(--weight-bold);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.signin__agree a:hover { text-decoration: underline; }
+
+/* ---------------------------------------------------------------------------
  * Toolbar — the tabs and the one action share a row
  * ------------------------------------------------------------------------ */
 

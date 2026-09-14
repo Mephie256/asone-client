@@ -18,12 +18,14 @@
 import { get, patch, post } from './http'
 import { tokens } from './tokens'
 import type {
+  AccountRequest,
   Credentials,
   CurrentUser,
   EmailVerification,
   LoginAttempt,
   LoginChallenge,
   Page,
+  RegistrationRequest,
   RoleInfo,
   Session,
   VerifyLoginCode,
@@ -70,6 +72,33 @@ export async function verifyLoginCode(input: VerifyLoginCode): Promise<Session> 
  */
 export function verifyEmail(input: EmailVerification): Promise<{ detail: string }> {
   return post<{ detail: string }>('/auth/verify-email/', input)
+}
+
+/**
+ * "Get Started Onboarding" — ask for an account.
+ *
+ * Open: there is no account yet to authenticate as. Immediately emails a
+ * confirmation code — call `confirmRegistration` with it next. Creates
+ * nothing more than a pending request; nothing here can be signed into. A
+ * Program Lead or Operations Manager reviews it once the address is
+ * confirmed, and either approves it (which creates the account and emails
+ * a *second*, separate code — the same as `POST /auth/users/` does today)
+ * or declines it.
+ */
+export function requestAccount(input: AccountRequest): Promise<RegistrationRequest> {
+  return post<RegistrationRequest>('/auth/register/', input)
+}
+
+/**
+ * Confirm the code sent the moment `requestAccount` was submitted.
+ *
+ * Does not create an account and does not sign anyone in — it unlocks the
+ * request for a lead to review. Expired, already used and too-many-attempts
+ * all come back as the same 400, deliberately not saying which — so the
+ * screen must offer "start again" rather than "try another code".
+ */
+export function confirmRegistration(input: EmailVerification): Promise<{ detail: string }> {
+  return post<{ detail: string }>('/auth/register/verify/', input)
 }
 
 /**

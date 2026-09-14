@@ -55,7 +55,33 @@ export type Scope = S['ScopeEnum']
 export type WarehouseSummary = S['WarehouseSummary']
 export type SchoolSummary = S['SchoolSummary']
 export type UserAdmin = S['UserAdmin']
-export type UserCreate = S['UserCreate']
+
+/**
+ * Creating a staff account — the request body for `POST /auth/users/`.
+ *
+ * SCHEMA GAP — the generated type includes `id` as required, because the
+ * server names the same serializer for the request and the 201 response,
+ * and `id` is only ever present on the latter. Ask for a request-only
+ * serializer (or `@extend_schema(request=...)`) and delete this override.
+ */
+export type UserCreate = Omit<S['UserCreate'], 'id'>
+
+/**
+ * "Get Started Onboarding" — the request body for `POST /auth/register/`.
+ *
+ * SCHEMA GAP — the same `id` problem as `UserCreate` above, for the same
+ * reason: one serializer named for both the request and the 201 response.
+ */
+export type AccountRequest = Omit<S['RegistrationRequestCreate'], 'id'>
+
+/**
+ * What `POST /auth/register/` returns — a pending request, nothing more.
+ *
+ * No account exists yet and nothing here can be signed into: a lead must
+ * approve it first, which is the moment the role is assigned.
+ */
+export type RegistrationRequest = S['RegistrationRequest']
+
 export type LoginAttempt = S['LoginAttempt']
 
 /**

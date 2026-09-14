@@ -4,15 +4,15 @@
  * Brand deck on the left, an invitation on the right. Two ways on: start
  * onboarding, or sign in with an account you already have.
  *
- * "Get Started Onboarding" has nothing behind it. Accounts in this system
- * are created by a Program Lead or Operations Manager through
- * `POST /auth/users/` — there is no self-service sign-up endpoint, and given
- * that every transaction records who performed it, self-registration may not
- * be something AsOne wants at all. The button is rendered because the design
- * calls for it; it needs either an endpoint or a decision.
+ * "Get Started Onboarding" leads to the registration form. It creates no
+ * account: `POST /auth/register/` records a request and emails a code to
+ * prove the address. A Program Lead or Operations Manager then approves it
+ * and assigns the role — which is the point the account actually exists,
+ * because every transaction in this system records who performed it, and
+ * nobody self-assigns what they are allowed to do.
  */
 
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { BrandMark, Button, LoadingScreen, ServerUnreachable } from '@/components'
 import { SplitAuthLayout } from '../components/SplitAuthLayout'
 import { useAuth } from '../hooks/useAuth'
@@ -20,6 +20,7 @@ import { paths } from '@/routes/paths'
 
 export function WelcomeScreen() {
   const { status, retry } = useAuth()
+  const navigate = useNavigate()
 
   // Still asking the server who this is; showing the marketing panel now
   // would flash it at somebody already signed in.
@@ -49,7 +50,7 @@ export function WelcomeScreen() {
           inventory allocations all in one unified logistics dashboard.
         </p>
 
-        <Button size="lg" disabled>
+        <Button size="lg" onClick={() => navigate(paths.createAccount)}>
           Get Started Onboarding
         </Button>
 
