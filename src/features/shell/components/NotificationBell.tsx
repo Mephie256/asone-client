@@ -61,7 +61,12 @@ export function NotificationBell() {
 
       {open && (
         <div className="bell__panel" role="dialog" aria-label="Notifications">
-          <p className="bell__title">Notifications</p>
+          {/* The count belongs in the pinned heading: once the list scrolls,
+              it is the only place that can say how much there is. */}
+          <p className="bell__title">
+            Notifications
+            {items.length > 0 && <span className="bell__count">{items.length}</span>}
+          </p>
 
           {isLoading ? (
             <p className="bell__empty">Loading…</p>

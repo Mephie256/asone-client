@@ -33,6 +33,8 @@ import { OrderDetailScreen } from '@/features/orders/screens/OrderDetailScreen'
 import { OrdersListScreen } from '@/features/orders/screens/OrdersListScreen'
 import { CreateProductionOrderScreen } from '@/features/production/screens/CreateProductionOrderScreen'
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
+import { BackordersScreen } from '@/features/backorders/screens/BackordersScreen'
+import { ReleaseBackordersScreen } from '@/features/backorders/screens/ReleaseBackordersScreen'
 import { ProductionOrdersScreen } from '@/features/production/screens/ProductionOrdersScreen'
 import { ReceivingScreen } from '@/features/receiving/screens/ReceivingScreen'
 import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetailScreen'
@@ -65,6 +67,7 @@ const SCREENS: Record<string, ComponentType> = {
   '/tailoring-centers': TailoringCentersScreen,
   '/receiving': ReceivingScreen,
   '/production-orders': ProductionOrdersScreen,
+  '/backorders': BackordersScreen,
   // The landing view is the picking backlog; despatched shipments are the
   // history behind it.
   '/shipments': PickingScreen,
@@ -122,6 +125,17 @@ export function AppRoutes() {
               <RequireAuth>
                 <RequireAccess requires="warehouse_receiving_and_shipping">
                   <ShipmentDetailScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/backorders/release"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="warehouse_receiving_and_shipping">
+                  <ReleaseBackordersScreen />
                 </RequireAccess>
               </RequireAuth>
             }

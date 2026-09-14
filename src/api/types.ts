@@ -224,6 +224,8 @@ export type PartProcessedOrder = S['PartProcessedOrder']
  * is the school confirming it arrived — the fact that completes the order.
  */
 export type Shipment = S['Shipment']
+/** What a school is still owed after a short pick — F44. */
+export type Backorder = S['Backorder']
 export type ShipmentLine = S['ShipmentLine']
 /** A row of the picking backlog — F38. */
 export type PickingQueueRow = S['PickingQueueRow']

@@ -352,30 +352,11 @@
  * Collapsible sidebar groups
  * ------------------------------------------------------------------------ */
 
-.sidebar__group-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  width: 100%;
-  height: 32px;
-  padding: var(--space-2) 0;
-  border: 0;
-  background: none;
-  color: var(--text-on-dark);
-  font: inherit;
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  text-align: left;
-  cursor: pointer;
-}
-
-.sidebar__group-label:hover { color: var(--accent-tint); }
-
-.sidebar__group-label:focus-visible {
-  outline: 2px solid var(--text-on-dark);
-  outline-offset: -2px;
-}
+/*
+ * The sidebar lives in shell.css. A duplicate set of rules sat here and,
+ * importing later, quietly won — which is why the group headings were white
+ * at rest and only went grey on hover.
+ */
 
 .sidebar__group-items {
   display: flex;

@@ -130,6 +130,10 @@
 
   --nav-bg: var(--tone-slate);
 
+  /* Group headings in the rail. Muted against the links, which stay white —
+     the contrast between the two is what makes the nav readable. */
+  --sidebar-label: rgba(255, 255, 255, 0.58);
+
   /* Form fields follow Material 3's outlined text field. */
   --field-border: var(--border);
   --field-label: #49454f;

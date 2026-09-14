@@ -174,7 +174,15 @@ export function OrderDetailScreen() {
               </div>
               <div className="fact">
                 <dt>Created at</dt>
-                <dd>{new Date(order.created_at).toLocaleString()}</dd>
+                {/* Readable, not `toLocaleString()` — nobody needs the
+                    seconds on an order they placed last week. */}
+                <dd>
+                  {new Date(order.created_at).toLocaleDateString(undefined, {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </dd>
               </div>
               <div className="fact">
                 <dt>Allocated warehouse</dt>

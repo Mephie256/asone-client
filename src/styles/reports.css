@@ -319,6 +319,9 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* A date or document reference that must never break across two lines. */
+.ledger__nowrap { white-space: nowrap; }
+
 .ledger__code {
   font-family: var(--font-mono);
   font-size: var(--text-small);

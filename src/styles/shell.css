@@ -6,7 +6,8 @@
 
 .shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  /* 260 for the rail plus the gutter it now floats in. */
+  grid-template-columns: calc(260px + var(--space-4)) minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--surface);
 }
@@ -46,18 +47,30 @@
  * Sidebar
  * ------------------------------------------------------------------------ */
 
+/*
+ * A floating panel, not a full-bleed column.
+ *
+ * The designs draw the rail as a rounded card with the page showing around
+ * it — the same treatment the top bar already had. Ours ran edge to edge
+ * with a hairline border, which is why the two did not look like part of
+ * the same system.
+ *
+ * The inset comes off the height too, so the card stops short of the window
+ * rather than being clipped by it.
+ */
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  margin: var(--space-4) 0 var(--space-4) var(--space-4);
   padding: 20px var(--space-4);
   background: var(--accent);
-  border-right: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   color: var(--text-on-dark);
   /* The nav is long; it scrolls independently of the content column. */
-  max-height: 100dvh;
+  max-height: calc(100dvh - var(--space-4) * 2);
   position: sticky;
-  top: 0;
+  top: var(--space-4);
 }
 
 .sidebar__brand {
@@ -95,6 +108,56 @@
 .sidebar__group { display: flex; flex-direction: column; gap: var(--space-1); }
 
 .sidebar__group + .sidebar__group { margin-top: var(--space-2); }
+
+/*
+ * The group heading is an eyebrow, not a destination.
+ *
+ * It had no colour rule at all, so it inherited the sidebar's white and read
+ * as loud as the links beneath it — the whole rail came out one weight. In
+ * the designs the headings sit back in grey and the links are white, which
+ * is what makes the structure legible at a glance.
+ */
+.sidebar__group-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  color: var(--sidebar-label);
+  font-size: var(--text-overline);
+  font-weight: var(--weight-bold);
+  /* Tighter than the usual overline tracking: "INVENTORY & PRODUCTS" is the
+     longest heading in the rail and has to fit beside its chevron on one
+     line. */
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* One line, always. A heading that wraps makes the rail look ragged and
+   pushes every group below it down. */
+.sidebar__group-label > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Brighter on hover, not greyer — the heading is already the muted one. */
+.sidebar__group-label:hover { color: var(--text-on-dark); }
+
+.sidebar__group-label:focus-visible {
+  outline: 2px solid var(--text-on-dark);
+  outline-offset: -2px;
+}
+
+/* The chevron follows its heading rather than shouting on its own. */
+.sidebar__group-label svg { color: inherit; opacity: 0.8; }
 
 .sidebar__link {
   display: flex;
@@ -355,6 +418,11 @@
 
 .bell { position: relative; }
 
+/*
+ * The whole panel used to scroll, heading and all — so the moment a warehouse
+ * had more than a handful of alerts, the word "Notifications" scrolled away
+ * and the list lost its label. The heading is pinned and only the list moves.
+ */
 .bell__panel {
   position: absolute;
   top: calc(100% + var(--space-2));
@@ -362,7 +430,8 @@
   z-index: 20;
   width: 320px;
   max-height: 60vh;
-  overflow-y: auto;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   padding: var(--space-4);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -372,12 +441,22 @@
 }
 
 .bell__title {
+  display: flex;
+  align-items: center;
   margin: 0 0 var(--space-3);
   font-size: var(--text-overline);
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-overline);
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.bell__count {
+  margin-left: var(--space-2);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
 }
 
 .bell__empty {
@@ -396,6 +475,14 @@
   list-style: none;
   margin: 0;
   padding: 0;
+
+  /* The scrolling part. `min-height: 0` is what lets a grid child actually
+     shrink and scroll rather than growing past its track. */
+  min-height: 0;
+  overflow-y: auto;
+  /* Room for the scrollbar so text does not sit under it. */
+  padding-right: var(--space-1);
+  margin-right: calc(var(--space-1) * -1);
 }
 
 .bell__item {

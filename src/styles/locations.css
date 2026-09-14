@@ -390,12 +390,14 @@
   .school-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
 }
 
 @media (max-width: 540px) {
   .school-kpi-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
 }
 
 .school-kpi-card {
@@ -718,6 +720,7 @@
   .site-card-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
 }
 
 .site-card {
@@ -794,6 +797,7 @@
   .site-card__stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
 }
 
 .site-card__stat {
@@ -949,12 +953,14 @@
   .hub-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
 }
 
 @media (max-width: 540px) {
   .hub-kpi-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
 }
 
 .hub-kpi-card {
@@ -1006,6 +1012,7 @@
   .hub-grid-2x2 {
     grid-template-columns: minmax(0, 1fr);
   }
+
 }
 
 /*
@@ -1208,55 +1215,6 @@
   color: var(--text-primary);
 }
 
-.tc-card__table-wrap {
-  overflow-x: auto;
-}
-
-.tc-card__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-body);
-  text-align: left;
-}
-
-.tc-card__table thead tr {
-  border-bottom: 1px solid var(--border);
-}
-
-.tc-card__table th {
-  padding: 10px 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: var(--text-caption);
-  white-space: nowrap;
-  background: var(--surface);
-}
-
-.tc-card__table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--surface-sunken);
-  color: var(--text-primary);
-  vertical-align: middle;
-}
-
-.tc-card__table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.tc-card__table tbody tr:hover {
-  background-color: var(--surface-sunken);
-}
-
-.tc-card__po-num {
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.tc-card__batch-qty {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
 /* Dispatch log rows. Was inline styles with hardcoded hex and px. */
 .hub-dispatch-item__title {
   overflow: hidden;
@@ -1276,7 +1234,6 @@
   color: var(--text-muted);
   font-size: var(--text-caption);
 }
-
 
 /* The figure on the right of a hub row — a level against its floor.
    Replaces four inline styles carrying raw hexes and pixel sizes. */

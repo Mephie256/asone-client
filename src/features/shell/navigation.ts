@@ -143,7 +143,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     ],
   },
   {
-    label: 'Locations & Administration',
+    label: 'Locations',
     items: [
       // Master data. Several roles may *read* these tables, but only the
       // Table Updates column may change them, and management is what these

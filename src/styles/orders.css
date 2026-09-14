@@ -454,10 +454,19 @@
   color: var(--text-muted);
 }
 
+/*
+ * A value under its label, not a heading.
+ *
+ * This was --text-h3 (16px) bold, which set a school name and a timestamp
+ * at the same size as the panel title above them — the facts shouted over
+ * the section they belonged to, and long values wrapped to two lines. Body
+ * size, still bold, so the label/value pair reads as a pair.
+ */
 .fact dd {
   margin: 0;
-  font-size: var(--text-h3);
+  font-size: var(--text-body);
   font-weight: var(--weight-bold);
+  line-height: 1.4;
   color: var(--text-primary);
 }
 

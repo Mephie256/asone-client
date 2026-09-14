@@ -95,14 +95,20 @@ export function TailoringCenterCard({ center }: TailoringCenterCardProps) {
       ) : orders.length === 0 ? (
         <p className="panel__clear">No production orders raised on this centre yet.</p>
       ) : (
-        <div className="tc-card__table-wrap">
-          <table className="tc-card__table">
+        <div className="table-scroll">
+          {/*
+            The shared `.ledger`, not a table of its own. This was a bespoke
+            `.tc-card__table` with its own padding, weights and no nowrap on
+            the PO number — which is why order numbers broke across two lines
+            here and nowhere else in the system.
+          */}
+          <table className="ledger">
             <thead>
               <tr>
                 <th scope="col">PO #</th>
                 <th scope="col">Destination Hub</th>
                 <th scope="col">Items Required</th>
-                <th scope="col">Batch Qty</th>
+                <th scope="col" className="ledger__num">Batch Qty</th>
                 <th scope="col">Required Date</th>
                 <th scope="col">Production Status</th>
               </tr>
@@ -111,16 +117,21 @@ export function TailoringCenterCard({ center }: TailoringCenterCardProps) {
               {orders.slice(0, ROWS_SHOWN).map((order) => (
                 <tr
                   key={order.id}
-                  style={{ cursor: 'pointer' }}
+                  className="ledger__row--clickable"
                   onClick={() => navigate(`/production-orders/${order.id}`)}
                 >
-                  <td className="tc-card__po-num">#{order.number}</td>
+                  {/* `ledger__code` keeps a document number on one line. */}
+                  <td className="ledger__code">{order.number}</td>
                   <td>{order.warehouse_name}</td>
-                  <td>{order.lines.map((l) => l.sku_description).join(', ')}</td>
-                  <td className="tc-card__batch-qty">
-                    {formatQuantity(order.total_quantity)} units
+                  <td className="ledger__wrap">
+                    {order.lines.map((l) => l.sku_description).join(', ')}
                   </td>
-                  <td>{formatDate(order.due_in_warehouse_date)}</td>
+                  {/* Right-aligned with tabular figures, like every other
+                      quantity column in the system. */}
+                  <td className="ledger__num">
+                    {formatQuantity(order.total_quantity)}
+                  </td>
+                  <td className="ledger__nowrap">{formatDate(order.due_in_warehouse_date)}</td>
                   <td>
                     <Badge tone={fulfilmentTone(order.fulfilment_status)}>
                       {order.fulfilment_status_display}
