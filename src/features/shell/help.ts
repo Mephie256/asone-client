@@ -103,7 +103,7 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
   },
   {
     path: '/backorders',
-    title: 'Orders Waiting for Stock',
+    title: 'Backorders',
     points: [
       'If a warehouse cannot fill every line of a paid order, nothing ships. The order is held whole until stock arrives or somebody hands it to a warehouse that has it. There is no part-shipping \u2014 a school never gets a parcel with half the uniform in it.',
       'That is why one missing shirt holds the trousers too, and why this queue lists orders rather than garments.',

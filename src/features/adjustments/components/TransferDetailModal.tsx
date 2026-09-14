@@ -36,7 +36,7 @@ export function TransferDetailModal({ transfer, onClose }: TransferDetailModalPr
   return (
     <Modal
       open
-      size="md"
+      size="lg"
       title={transfer.number}
       subtitle={`${transfer.from_warehouse_name} → ${transfer.to_warehouse_name}`}
       onClose={onClose}

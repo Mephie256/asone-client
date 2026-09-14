@@ -66,9 +66,9 @@ export function BackordersScreen() {
   const rows = queue.data ?? []
 
   return (
-    <AppShell title="Orders waiting for stock">
+    <AppShell title="Backorders">
       <header className="page-head">
-        <h1 className="page-head__title">Orders Waiting for Stock</h1>
+        <h1 className="page-head__title">Backorders</h1>
         <p className="page-head__subtitle">
           {/* `siteLabel` is "All warehouses" for a role that has them all,
               which turned this into "Paid orders All warehouses cannot fill

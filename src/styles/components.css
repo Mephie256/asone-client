@@ -1334,11 +1334,28 @@ button.page-dots__dot {
  * the focus trap and inertness all come from <dialog>.
  * ------------------------------------------------------------------------ */
 
+/*
+ * Pinned to the viewport, explicitly.
+ *
+ * Sizing it to `100vw`/`100dvh` and trusting the UA's `margin: auto` put the
+ * host at y=24 rather than y=0 — so the card, correctly centred *inside the
+ * host*, sat 24px below the middle of the screen. Measured: 116px of gap
+ * above, 68px below, at 1440x900.
+ *
+ * `position: fixed; inset: 0; margin: 0` leaves nothing for a margin to
+ * resolve against. A modal dialog is in the top layer, so no ancestor's
+ * transform or filter can move it either.
+ *
+ * `100dvw` rather than `100vw`: the latter includes the scrollbar the page
+ * behind is showing, which pushed everything a few pixels right.
+ */
 .modal-host {
-  /* Fills the viewport. The UA's own max-width/max-height would otherwise
-     inset it by a couple of em and re-introduce an offset. */
-  width: 100vw;
-  max-width: 100vw;
+  position: fixed;
+  inset: 0;
+  margin: 0;
+
+  width: 100dvw;
+  max-width: 100dvw;
   height: 100dvh;
   max-height: 100dvh;
 
@@ -1415,7 +1432,24 @@ button.page-dots__dot {
   overflow-y: auto;
 }
 
+/*
+ * The footer lays its own actions out.
+ *
+ * It used to be a plain box, and every dialog was expected to wrap its
+ * buttons in `.modal__foot-actions` to get the spacing. Two of them did and
+ * the newer ones did not, so Cancel and the confirm button came out touching
+ * — a caller could get this wrong and nothing said so. The rule belongs on
+ * the container that owns the space.
+ *
+ * `.modal__foot-actions` still works and is still used; a flex row inside a
+ * flex row changes nothing.
+ */
 .modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--table-rule);
   background: var(--surface-sunken);

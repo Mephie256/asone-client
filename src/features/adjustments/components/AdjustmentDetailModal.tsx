@@ -59,7 +59,7 @@ export function AdjustmentDetailModal({
   return (
     <Modal
       open
-      size="md"
+      size="lg"
       title={adjustment.number}
       subtitle={`${adjustment.sku_number} · ${adjustment.warehouse_name}`}
       onClose={onClose}

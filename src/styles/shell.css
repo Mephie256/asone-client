@@ -39,8 +39,23 @@
  * A section that genuinely needs to sit tighter says so itself; that is now
  * a deliberate exception rather than the default.
  */
-.shell__content > * + * {
+.shell__content > * + *:not(dialog) {
   margin-top: var(--space-5);
+}
+
+/*
+ * A dialog is excluded because it is not a block in this flow. It renders in
+ * the top layer and contributes no layout — but it is still a child of the
+ * screen that opened it, so the owl was handing it `margin-top: 24px`, and
+ * that margin is what a modal dialog's `inset: 0` resolves against.
+ *
+ * The visible effect was a dialog sitting 24px below the middle of the
+ * screen, everywhere: 247px of gap above the card and 199px below it, at
+ * 1440x900. The card was centred correctly inside a host that was itself
+ * pushed down.
+ */
+dialog {
+  margin: 0;
 }
 
 /* ---------------------------------------------------------------------------

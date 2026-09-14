@@ -118,13 +118,17 @@ export const NAVIGATION: readonly NavGroup[] = [
         icon: 'ArrowLeftRight',
       },
       /*
-       * "Awaiting Stock", not "Backorders". There is no backorder record to
-       * manage — an order is here because it is paid for and its warehouse is
-       * short, and it leaves when that stops being true. The old name had
-       * clerks looking for something to create or resolve.
+       * "Backorders" is AsOne's own word and the one they use in the pack, so
+       * it is the one on screen — renaming a thing the client already has a
+       * name for costs more than it explains.
+       *
+       * It is worth knowing that nothing here is a record: an order is
+       * backordered because it is paid for and its warehouse is short, and it
+       * stops being one when that stops being true. The screen says so, so
+       * nobody goes looking for something to create or resolve.
        */
       {
-        label: 'Awaiting Stock',
+        label: 'Backorders',
         path: '/backorders',
         requires: 'backorder_transfers',
         icon: 'Clock',

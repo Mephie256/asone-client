@@ -97,6 +97,11 @@ export function TransferOrderModal({ entry, onClose }: TransferOrderModalProps) 
         deciding between waiting for the next delivery and moving the order,
         and the shortfall is the whole of that decision.
       */}
+      <h3 className="detail-notes__title">
+        Short on {entry.waiting_on.length}{' '}
+        {entry.waiting_on.length === 1 ? 'line' : 'lines'}
+      </h3>
+
       <div className="table-scroll">
         <table className="ledger">
           <thead>
