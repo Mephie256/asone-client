@@ -229,3 +229,38 @@ export function initials(user: CurrentUser | null): string {
   const both = `${first}${last}`.toUpperCase()
   return both || (user.email[0]?.toUpperCase() ?? '')
 }
+
+/**
+ * Who may move stock between warehouses — F25.
+ *
+ * ---------------------------------------------------------------------------
+ * Not a matrix column either, and easy to confuse with two that are
+ * ---------------------------------------------------------------------------
+ *
+ *   Inventory Adj (Finance only)     corrections, returns, damages
+ *   F25 (both leads and Finance)     stock moving between warehouses
+ *   Backorder Transfers (+ clerks)   a warehouse fills another's shortfall
+ *                                    and ships DIRECT to the school
+ *
+ * The middle one is what this is. AsOne's checklist gives F25 to Program
+ * Lead, Operations Manager and Finance — wider than the Inventory Adj column
+ * it would otherwise fall under, and narrower than Backorder Transfers, which
+ * decision D5 extended to warehouse staff.
+ *
+ * Warehouse staff are excluded because a transfer commits two sites and a
+ * clerk can only see one of them.
+ *
+ * Gating the transfer screens on `inventory_adjustments` would have been one
+ * word shorter and would have denied both leads a feature the matrix grants
+ * them.
+ *
+ * Mirrors `accounts/permissions.py::CanMoveStockBetweenWarehouses`.
+ */
+export function canMoveStockBetweenWarehouses(user: CurrentUser | null): boolean {
+  if (!user) return false
+  return (
+    user.role === 'PROGRAM_LEAD' ||
+    user.role === 'OPERATIONS_MANAGER' ||
+    user.role === 'FINANCE'
+  )
+}

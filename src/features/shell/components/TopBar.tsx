@@ -12,7 +12,8 @@
  *   catalog is currently dead, so the input would return everything.
  */
 
-import { HelpCircle, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
+import { HelpButton } from './HelpButton'
 import { NotificationBell } from './NotificationBell'
 import { WarehouseSwitcher } from './WarehouseSwitcher'
 
@@ -37,9 +38,7 @@ export function TopBar({ title }: TopBarProps) {
 
       <div className="topbar__actions">
         <NotificationBell />
-        <button type="button" className="topbar__icon-btn" aria-label="Help">
-          <HelpCircle size={18} aria-hidden />
-        </button>
+        <HelpButton />
       </div>
     </header>
   )

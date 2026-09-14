@@ -518,3 +518,44 @@
   background: var(--tone-slate);
   border-color: var(--tone-slate);
 }
+
+/* ---------------------------------------------------------------------------
+ * Context help
+ *
+ * One idea per line, set for reading standing up at a warehouse bench.
+ * ------------------------------------------------------------------------ */
+
+.help__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help__point {
+  position: relative;
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* A marker rather than a bullet glyph, so it lines up with the first line
+   of text whatever the font does. */
+.help__point::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.help__none {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

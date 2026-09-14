@@ -91,3 +91,26 @@ export function isBefore(a: string, b: string): boolean {
   // building two Dates that would each be parsed as UTC midnight.
   return Boolean(a) && Boolean(b) && a < b
 }
+
+/**
+ * A `YYYY-MM-DD` as "12 May 2026".
+ *
+ * Split rather than `new Date(iso)`, which reads a bare date as UTC midnight
+ * and prints a day early west of Greenwich. Three screens had written this
+ * out privately before it was worth having once.
+ */
+export function formatDay(value: string): string {
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return value
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+/** `YYYY-MM-DD` for `days` before today, in local time. */
+export function daysAgoISO(days: number, now: Date = new Date()): string {
+  const then = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days)
+  return todayISO(then)
+}
