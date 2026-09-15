@@ -2268,7 +2268,7 @@ export interface paths {
          * The picking backlog
          * @description The backlog, most urgent first, paginated.
          *
-         *     `summary` counts the **whole** queue, not the page: a warehouse asking how much is waiting means all of it, and a tile that changed as you paged would be worse than no tile.
+         *     `summary` counts the **whole** queue, not the page: a warehouse asking how much is waiting means all of it, and a tile that changed as you paged would be worse than no tile. It is also unaffected by `status`, for the same reason — the tiles are the totals the filter is chosen from.
          */
         get: operations["orders_picking_queue_retrieve"];
         put?: never;
@@ -3309,7 +3309,6 @@ export interface components {
             level: string;
             count: number;
             message: string;
-            /** @description The one record this alert is about, for kinds that are one row per record rather than a rollup — currently only registrations_pending, where it is the RegistrationRequest id. Absent for every other kind: those are a count over many records, with no single one to link to. */
             ref_id?: number | null;
         };
         /** @description What a school is still owed — F44. */
@@ -4775,7 +4774,7 @@ export interface components {
         };
         PatchedSku: {
             readonly id?: number;
-            /** @description System assigned. Unique forever, never reused. */
+            /** @description System assigned from the garment and size, for example GTR-14. */
             readonly number?: string;
             garment?: number;
             readonly garment_name?: string;
@@ -5538,7 +5537,7 @@ export interface components {
         };
         Sku: {
             readonly id: number;
-            /** @description System assigned. Unique forever, never reused. */
+            /** @description System assigned from the garment and size, for example GTR-14. */
             readonly number: string;
             garment: number;
             readonly garment_name: string;
@@ -9226,6 +9225,8 @@ export interface operations {
                 page?: number;
                 /** @description Capped at 200. */
                 page_size?: number;
+                /** @description Narrow the rows to one bucket: RELEASED is still to pick, PICKED is off the shelf and waiting for a van. Omit for both. `summary` is unaffected. */
+                status?: "PICKED" | "RELEASED";
                 /** @description Required for an all-locations role; ignored for a clerk. */
                 warehouse?: number;
             };
