@@ -3155,12 +3155,14 @@ export interface components {
          *     through to the screen that has those.
          */
         AttentionAlert: {
-            /** @description Stable identifier for the frontend to route on: low_stock, orders_on_hold, receipts_unreconciled, backorders_fillable. */
+            /** @description Stable identifier for the frontend to route on: low_stock, orders_on_hold, receipts_unreconciled, backorders_fillable, registrations_pending. */
             kind: string;
             /** @description CRITICAL, HOLD, INSPECTION or READY. */
             level: string;
             count: number;
             message: string;
+            /** @description The one record this alert is about, for kinds that are one row per record rather than a rollup — currently only registrations_pending, where it is the RegistrationRequest id. Absent for every other kind: those are a count over many records, with no single one to link to. */
+            ref_id?: number | null;
         };
         /** @description What a school is still owed — F44. */
         Backorder: {
@@ -3713,6 +3715,7 @@ export interface components {
             level: string;
             message: string;
             count: number;
+            ref_id?: number | null;
         };
         /**
          * @description The bell: a badge count and the list behind it.
@@ -4134,6 +4137,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["ReconciliationRow"][];
+        };
+        PaginatedRegistrationRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["RegistrationRequest"][];
         };
         PaginatedSchoolList: {
             /** @example 123 */
@@ -6001,13 +6019,16 @@ export interface operations {
     auth_registration_requests_list: {
         parameters: {
             query?: {
-                email?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
-                succeeded?: boolean;
-                user?: number;
+                /**
+                 * @description * `PENDING` - Pending
+                 *     * `APPROVED` - Approved
+                 *     * `DECLINED` - Declined
+                 */
+                status?: "APPROVED" | "DECLINED" | "PENDING";
             };
             header?: never;
             path?: never;
@@ -6020,7 +6041,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedLoginAttemptList"];
+                    "application/json": components["schemas"]["PaginatedRegistrationRequestList"];
                 };
             };
         };
@@ -6030,7 +6051,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;
@@ -6042,7 +6063,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LoginAttempt"];
+                    "application/json": components["schemas"]["RegistrationRequest"];
                 };
             };
         };
@@ -6052,7 +6073,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;
@@ -6079,7 +6100,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;

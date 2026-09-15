@@ -14,14 +14,16 @@
  */
 
 import { Bell, CheckCircle2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { alertTone } from '@/domain/status'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { alertPath, alertTone } from '@/domain/status'
 import { useNotifications } from '../hooks/useNotifications'
 
 export function NotificationBell() {
   const { unreadCount, items, isLoading } = useNotifications()
   const [open, setOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   // Close on an outside click or Escape — a panel that traps you inside it
   // is worse than one that is a click away.
@@ -77,14 +79,37 @@ export function NotificationBell() {
             </p>
           ) : (
             <ul className="bell__list">
-              {items.map((item) => (
-                <li className="bell__item" key={`${item.kind}-${item.message}`}>
-                  <span className={`bell__level bell__level--${alertTone(item.level)}`}>
-                    {item.level}
-                  </span>
-                  <span className="bell__message">{item.message}</span>
-                </li>
-              ))}
+              {items.map((item) => {
+                const to = alertPath(item.kind, item.ref_id)
+                return (
+                  <li
+                    className={`bell__item${to ? ' bell__item--clickable' : ''}`}
+                    key={`${item.kind}-${item.message}`}
+                    {...(to
+                      ? {
+                          role: 'button',
+                          tabIndex: 0,
+                          onClick: () => {
+                            setOpen(false)
+                            navigate(to)
+                          },
+                          onKeyDown: (event: KeyboardEvent) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault()
+                              setOpen(false)
+                              navigate(to)
+                            }
+                          },
+                        }
+                      : {})}
+                  >
+                    <span className={`bell__level bell__level--${alertTone(item.level)}`}>
+                      {item.level}
+                    </span>
+                    <span className="bell__message">{item.message}</span>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>

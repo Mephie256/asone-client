@@ -10,6 +10,7 @@
 
 import type { Tone } from '@/components'
 import type { MovementType, ProcurementStatus, SchoolOrderStatus } from '@/api/types'
+import { paths } from '@/routes/paths'
 
 /**
  * School order lifecycle.
@@ -156,6 +157,35 @@ export function alertTone(level: string): Tone {
       return 'info'
     default:
       return 'neutral'
+  }
+}
+
+/**
+ * Where an attention alert's "kind" leads.
+ *
+ * The server's `message` says what is wrong; this says where to go do
+ * something about it. `null` means there is no single screen for it yet —
+ * the row still renders, just not as a link.
+ *
+ * `registrations_pending` is one alert per request (see
+ * `dashboard/services.py::needs_attention`), so `refId` opens straight into
+ * that person's own Approve/Decline review rather than just the Users
+ * screen — the same as clicking that row on the Users table itself.
+ */
+export function alertPath(kind: string, refId?: number | null): string | null {
+  switch (kind) {
+    case 'low_stock':
+      return paths.stockReport
+    case 'orders_on_hold':
+      return paths.orders
+    case 'receipts_unreconciled':
+      return paths.receiving
+    case 'backorders_fillable':
+      return paths.backorders
+    case 'registrations_pending':
+      return refId ? `${paths.users}?review=${refId}` : paths.users
+    default:
+      return null
   }
 }
 

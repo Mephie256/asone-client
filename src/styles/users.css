@@ -130,9 +130,21 @@
 
 /* ---------------------------------------------------------------------------
  * Add User dialog
+ *
+ * Its own overlay and card, prefixed `adduser__` rather than the bare
+ * `.modal*` names — this wizard predates the shared `Modal` component in
+ * `components/Modal.tsx` (built on `<dialog>`) and duplicated its own names
+ * independently. Both files load on every page, so `.modal`/`.modal__head`/
+ * `.modal__title`/`.modal__close`/`.modal__body` defined here were silently
+ * overriding `components.css`'s versions everywhere `Modal` is used, not
+ * just inside this wizard — `users.css` loads last in `base.css`, so it won,
+ * and every other dialog on the site lost its border, shadow and layout.
+ * Renaming only the five colliding names; everything below that
+ * `components.css` never defined (`.modal__step`, `.modal__progress`,
+ * `.modal__review`, `.modal__actions`, …) is untouched.
  * ------------------------------------------------------------------------ */
 
-.modal-overlay {
+.adduser-overlay {
   position: fixed;
   inset: 0;
   display: grid;
@@ -142,7 +154,7 @@
   z-index: 100;
 }
 
-.modal {
+.adduser-card {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -156,7 +168,7 @@
   box-shadow: var(--shadow-lg);
 }
 
-.modal__head {
+.adduser__head {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -165,7 +177,7 @@
   flex-shrink: 0;
 }
 
-.modal__title {
+.adduser__title {
   margin: 0;
   font-size: var(--text-h3);
   font-weight: var(--weight-bold);
@@ -185,7 +197,7 @@
   color: var(--accent);
 }
 
-.modal__close {
+.adduser__close {
   display: grid;
   place-items: center;
   width: 28px;
@@ -198,7 +210,7 @@
   cursor: pointer;
 }
 
-.modal__close:hover { background: var(--surface-sunken); }
+.adduser__close:hover { background: var(--surface-sunken); }
 
 /* On the header row beside the counter, so the bars read as part of
    "Step 1 of 3" rather than a band across the dialog. */
@@ -219,7 +231,7 @@
 
 .modal__progress-bar--done { background: var(--accent); }
 
-.modal__body {
+.adduser__body {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -512,4 +524,41 @@
 .handoff__warning svg {
   flex-shrink: 0;
   color: var(--warning);
+}
+
+/* ---------------------------------------------------------------------------
+ * Needs Attention — clickable rows
+ *
+ * Added here rather than dashboard.css: that file is Bash's, this one only
+ * carries what this feature needed on top of it.
+ * ------------------------------------------------------------------------ */
+
+.attention__item--clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.attention__item--clickable:hover,
+.attention__item--clickable:focus-visible {
+  background: var(--accent-subtle-hover, var(--surface-sunken));
+}
+
+.attention__item--clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bell__item--clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.bell__item--clickable:hover,
+.bell__item--clickable:focus-visible {
+  background: var(--accent-subtle-hover, var(--surface-sunken));
+}
+
+.bell__item--clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }

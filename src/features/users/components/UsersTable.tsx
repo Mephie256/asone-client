@@ -4,15 +4,24 @@
  * "Last Active" reads `last_login`, which is the closest thing the server
  * tracks — there is no separate presence/activity feed, so this is a sign-in
  * timestamp shown under a friendlier label, not a live "seen 2 minutes ago".
+ *
+ * `pendingRequests` are not users — nobody has assigned them a role yet, so
+ * there is no account to list. They appear here anyway rather than on a
+ * separate screen, because "somebody asking to join the Users list" belongs
+ * in the Users list: Role reads "No Role" and Status reads "Pending",
+ * clicking either opens the same Approve/Decline review a Needs Attention
+ * click does.
  */
 
 import { Users as UsersIcon } from 'lucide-react'
 import { Badge, EmptyState, SkeletonRows } from '@/components'
-import type { UserAdmin } from '@/api/types'
+import type { RegistrationRequest, UserAdmin } from '@/api/types'
 
 interface UsersTableProps {
   users: UserAdmin[]
+  pendingRequests?: RegistrationRequest[]
   loading: boolean
+  onReviewPending?: (request: RegistrationRequest) => void
 }
 
 function siteFor(user: UserAdmin): string {
@@ -35,10 +44,10 @@ function lastActive(iso: string | null): string {
   return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
-export function UsersTable({ users, loading }: UsersTableProps) {
+export function UsersTable({ users, pendingRequests = [], loading, onReviewPending }: UsersTableProps) {
   if (loading) return <SkeletonRows rows={8} height="44px" />
 
-  if (users.length === 0) {
+  if (users.length === 0 && pendingRequests.length === 0) {
     return (
       <EmptyState
         icon={UsersIcon}
@@ -62,6 +71,34 @@ export function UsersTable({ users, loading }: UsersTableProps) {
           </tr>
         </thead>
         <tbody>
+          {pendingRequests.map((request) => (
+            <tr
+              key={`pending-${request.id}`}
+              className="ledger__row--clickable"
+              role="button"
+              tabIndex={0}
+              onClick={() => onReviewPending?.(request)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onReviewPending?.(request)
+                }
+              }}
+            >
+              <td className="ledger__strong">
+                {request.first_name} {request.last_name}
+              </td>
+              <td>{request.email}</td>
+              <td>
+                <Badge tone="neutral">No Role</Badge>
+              </td>
+              <td>—</td>
+              <td>
+                <Badge tone="warning">Pending</Badge>
+              </td>
+              <td>Requested {new Date(request.created_at).toLocaleDateString()}</td>
+            </tr>
+          ))}
           {users.map((user) => (
             <tr key={user.id}>
               <td className="ledger__strong">

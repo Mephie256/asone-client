@@ -22,4 +22,8 @@ export const paths = {
   inventory: '/inventory',
   orders: '/orders',
   productionOrders: '/production-orders',
+  stockReport: '/reports/inventory',
+  receiving: '/receiving',
+  backorders: '/backorders',
+  users: '/users',
 } as const

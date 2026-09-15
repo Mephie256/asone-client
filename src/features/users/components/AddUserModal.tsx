@@ -23,21 +23,55 @@
  * never emailed (see `api/users.ts`). Dropping it silently would leave the
  * lead with an account they cannot hand off, so it is shown here even
  * though no screenshot covers this moment.
+ *
+ * `prefill` is this same wizard reached from a registration request instead
+ * of a blank form: the fields simply start filled in with what the
+ * registrant already gave, still editable, in case a lead needs to correct
+ * a typo before assigning a role. `onCreate` is still what actually submits,
+ * so the caller decides whether that means `POST /auth/users/` or approving
+ * the request; this component only decides what to ask and what to show
+ * back.
+ *
+ * Rendered through a portal into `document.body`, not in place. This is a
+ * plain `position: fixed` overlay, not `Modal.tsx`'s `<dialog>` — a real
+ * `<dialog>` promotes itself to the browser's top layer regardless of where
+ * it sits in the tree, but a `fixed` div is still a descendant of wherever
+ * it is mounted, and any ancestor between it and `<body>` is free to affect
+ * it. Screens render this from deep inside `AppShell`'s grid, and that grid
+ * was enough to squeeze the overlay into the content column instead of the
+ * full viewport. Mounting at `<body>` sidesteps the question of which
+ * ancestor was responsible, the same way `Modal.tsx` does by construction.
  */
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useQuery } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import * as catalogApi from '@/api/catalog'
 import { Badge, Button, Select, TextField } from '@/components'
 import { toApiError, type ApiError } from '@/api/errors'
-import type { CreatedUser } from '@/api/users'
-import type { RoleInfo, UserCreate } from '@/api/types'
+import type { RegistrationRequest, RoleInfo } from '@/api/types'
+
+/** What either creation path returns: the account, and its password once. */
+interface Created {
+  user: { first_name: string; email: string }
+  password: string | null
+}
 
 interface AddUserModalProps {
   roles: RoleInfo[]
   onClose: () => void
-  onCreate: (input: UserCreate) => Promise<CreatedUser>
+  /** Pre-fills name, email and phone, and skips straight to the role step. */
+  prefill?: RegistrationRequest
+  onCreate: (input: {
+    first_name: string
+    last_name: string
+    email: string
+    role: string
+    warehouse?: number
+    school?: number
+    must_change_password: true
+  }) => Promise<Created>
 }
 
 interface Draft {
@@ -51,12 +85,22 @@ interface Draft {
 
 const EMPTY: Draft = { firstName: '', lastName: '', email: '', phoneNumber: '', role: '', site: '' }
 
-export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
+export function AddUserModal({ roles, onClose, onCreate, prefill }: AddUserModalProps) {
   const [step, setStep] = useState<1 | 3>(1)
-  const [draft, setDraft] = useState<Draft>(EMPTY)
+  const [draft, setDraft] = useState<Draft>(
+    prefill
+      ? {
+          ...EMPTY,
+          firstName: prefill.first_name,
+          lastName: prefill.last_name,
+          email: prefill.email,
+          phoneNumber: prefill.phone_number,
+        }
+      : EMPTY,
+  )
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
-  const [created, setCreated] = useState<CreatedUser | null>(null)
+  const [created, setCreated] = useState<Created | null>(null)
 
   const role = roles.find((entry) => entry.value === draft.role) ?? null
   const siteKind = role?.requires_site ?? null // "warehouse" | "school" | null
@@ -94,7 +138,7 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
         first_name: draft.firstName,
         last_name: draft.lastName,
         email: draft.email,
-        role: role.value as UserCreate['role'],
+        role: role.value,
         warehouse: siteKind === 'warehouse' && draft.site ? Number(draft.site) : undefined,
         school: siteKind === 'school' && draft.site ? Number(draft.site) : undefined,
         must_change_password: true,
@@ -113,21 +157,21 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
 
   const siteName = sites?.find((entry) => String(entry.id) === draft.site)?.name
 
-  return (
-    <div className="modal-overlay" role="presentation" onClick={onClose}>
+  return createPortal(
+    <div className="adduser-overlay" role="presentation" onClick={onClose}>
       <div
-        className="modal"
+        className="adduser-card"
         role="dialog"
         aria-modal="true"
         aria-labelledby="add-user-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="modal__head">
-          <h2 className="modal__title" id="add-user-title">
+        <header className="adduser__head">
+          <h2 className="adduser__title" id="add-user-title">
             Add New User
           </h2>
           <span className="modal__step">Step {step} of 3</span>
-          <button type="button" className="modal__close" onClick={onClose} aria-label="Close">
+          <button type="button" className="adduser__close" onClick={onClose} aria-label="Close">
             <X size={18} aria-hidden />
           </button>
         </header>
@@ -139,7 +183,7 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
         </div>
 
         {step === 1 && (
-          <div className="modal__body">
+          <div className="adduser__body">
             <div className="modal__grid">
               <TextField
                 label="First Name"
@@ -226,7 +270,7 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
         )}
 
         {created && (
-          <div className="modal__body">
+          <div className="adduser__body">
             <div className="modal__review">
               <div className="modal__review-row">
                 <span className="modal__review-label">One-time password</span>
@@ -246,7 +290,7 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
         )}
 
         {step === 3 && role && !created && (
-          <div className="modal__body">
+          <div className="adduser__body">
             {error && <p className="modal__error">{error.message}</p>}
 
             <div className="modal__review">
@@ -287,6 +331,7 @@ export function AddUserModal({ roles, onClose, onCreate }: AddUserModalProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
