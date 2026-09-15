@@ -14,7 +14,9 @@
  */
 
 import { Users as UsersIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Badge, EmptyState, SkeletonRows } from '@/components'
+import { formatDay } from '@/domain/dates'
 import type { RegistrationRequest, UserAdmin } from '@/api/types'
 
 interface UsersTableProps {
@@ -24,8 +26,26 @@ interface UsersTableProps {
   onReviewPending?: (request: RegistrationRequest) => void
 }
 
-function siteFor(user: UserAdmin): string {
-  return user.warehouse_name || user.school_name || 'All Sites'
+/**
+ * Where this user works, and whether that is an answer or a gap.
+ *
+ * "All Sites" is correct for a lead or Finance — the matrix gives them every
+ * location, so a blank site is the truth. It is a *fault* for a warehouse or
+ * school account: every request they make is scoped to a site they do not
+ * have, so they see nothing and can do nothing, and the screen should say so
+ * rather than print the same reassuring phrase as a lead.
+ *
+ * `User.clean()` refuses to save one, but nothing stops `objects.create()`,
+ * and two of these exist in the data today.
+ */
+function siteFor(user: UserAdmin): { label: string; missing: boolean } {
+  const site = user.warehouse_name || user.school_name
+  if (site) return { label: site, missing: false }
+
+  const needsOne = user.role === 'WAREHOUSE_STAFF' || user.role === 'SCHOOL_STAFF'
+  return needsOne
+    ? { label: 'No site assigned', missing: true }
+    : { label: 'All Sites', missing: false }
 }
 
 /** Relative-ish, matching the design's "2 mins ago" / "3 days ago" style. */
@@ -58,7 +78,7 @@ export function UsersTable({ users, pendingRequests = [], loading, onReviewPendi
   }
 
   return (
-    <div className="scroll-x">
+    <div className="table-scroll">
       <table className="ledger">
         <thead>
           <tr>
@@ -96,19 +116,25 @@ export function UsersTable({ users, pendingRequests = [], loading, onReviewPendi
               <td>
                 <Badge tone="warning">Pending</Badge>
               </td>
-              <td>Requested {new Date(request.created_at).toLocaleDateString()}</td>
+              <td className="ledger__nowrap">
+                Requested {formatDay(request.created_at.slice(0, 10))}
+              </td>
             </tr>
           ))}
           {users.map((user) => (
             <tr key={user.id}>
               <td className="ledger__strong">
-                {`${user.first_name} ${user.last_name}`.trim() || user.email}
+                <Link className="ledger__link" to={`/users/${user.id}`}>
+                  {`${user.first_name} ${user.last_name}`.trim() || user.email}
+                </Link>
               </td>
               <td>{user.email}</td>
               <td>
                 <Badge tone="info">{user.role_display}</Badge>
               </td>
-              <td>{siteFor(user)}</td>
+              <td className={siteFor(user).missing ? 'users__site--missing' : undefined}>
+                {siteFor(user).label}
+              </td>
               <td>
                 <span className={`status-dot status-dot--${user.is_active ? 'active' : 'inactive'}`}>
                   <span className="status-dot__mark" aria-hidden />
