@@ -11,6 +11,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import * as catalog from '@/api/catalog'
 import * as procurement from '@/api/procurement'
 import { snackbar } from '@/components'
+import { useSkuOptions } from '@/features/catalog/hooks/useSkuOptions'
 
 const PAGE_SIZE = 15
 
@@ -72,15 +73,10 @@ export function useWarehouses() {
  * round trip per keystroke. `page_size` is capped at 200 by the server.
  */
 export function useOrderableSkus(enabled = true) {
-  return useQuery({
-    queryKey: ['skus', 'orderable'],
-    queryFn: () => catalog.skus({ is_active: true, page_size: 200 }),
-    staleTime: 10 * 60 * 1000,
-    // Only the leads can raise an order, so only they need the picker's
-    // catalogue. Fetching it for every clerk who opens the list is 200 rows
-    // nobody will look at.
-    enabled,
-  })
+  // Only the leads can raise an order, so only they need the picker's
+  // catalogue. Fetching it for every clerk who opens the list is 200 rows
+  // nobody will look at — hence the flag, which the shared hook honours.
+  return useSkuOptions(enabled)
 }
 
 /** One order, with its lines — the detail screen. */

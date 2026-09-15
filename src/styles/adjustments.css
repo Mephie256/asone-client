@@ -1,0 +1,400 @@
+/**
+ * Inventory adjustments and warehouse transfers.
+ *
+ * Nothing here invents a container or a control. The page uses `.card-panel`,
+ * `.filter-bar`, `.ledger`, `.table-card` and `.compose__bar` exactly as the
+ * production and receiving screens do; what is below is only the two things
+ * these screens have that no other screen has — the row of type cards, and
+ * the panel of read-only figures that says what an entry will do before it
+ * does it.
+ *
+ * Every value comes from tokens.css. No literal colour appears below.
+ */
+
+/* 01 / Adjustment type cards ---------------------------------------------- */
+
+.kind-grid {
+  display: grid;
+  /* Five across on a wide screen, wrapping to two and then one rather than
+     shrinking each card past the point its label fits. */
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.kind-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.kind-card:hover {
+  border-color: var(--border-focus);
+}
+
+.kind-card:focus-visible {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 18%, transparent);
+}
+
+/* The chosen card carries the brand tint, as drawn. Colour is not the only
+   signal — aria-checked carries it for anyone who cannot see the tint. */
+.kind-card--active {
+  background: var(--accent-halo);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.kind-card__label {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.kind-card__blurb {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* 02 / The figures panel --------------------------------------------------- */
+
+/*
+ * Sunken rather than bordered: these are consequences of what was typed
+ * above, not more fields to fill in, and the recess is what says so.
+ */
+.count-panel {
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.count-panel__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.count-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+/* The panel's last row of fields should not push the hint away from them. */
+.count-panel .field--stacked { margin-bottom: 0; }
+
+/* 03 / Read-only and locked fields ---------------------------------------- */
+
+/*
+ * An `<output>` styled as an input, deliberately: it lines up with the boxes
+ * either side of it, and it is not focusable or editable, which is the whole
+ * point — the system worked this figure out and nobody may overtype it.
+ */
+.input--readonly {
+  display: block;
+  background: var(--field-filled);
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.input--up {
+  color: var(--success);
+  font-weight: var(--weight-bold);
+}
+
+.input--down {
+  color: var(--error);
+  font-weight: var(--weight-bold);
+}
+
+/* A value the screen has chosen and will not let anyone change, with the
+   padlock the design draws. */
+.input--locked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  background: var(--field-filled);
+  color: var(--text-secondary);
+}
+
+.input--locked svg { flex: none; color: var(--text-muted); }
+
+/* 04 / Two fields side by side -------------------------------------------- */
+
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+/* For the notes box, which should take what is left rather than half. */
+.field--grow { grid-column: span 2; }
+
+@media (max-width: 720px) {
+  .field--grow { grid-column: auto; }
+}
+
+/* 05 / Table -------------------------------------------------------------- */
+
+/* The counterpart to .ledger__num--owed: stock that came back. */
+.ledger__num--gain {
+  color: var(--success);
+  font-weight: var(--weight-bold);
+}
+
+/*
+ * The reason wraps rather than truncating, unlike `.ledger__wrap` beside it.
+ * A description cut to "White Shirt White siz…" is still recognisable; a
+ * reason cut to "Inventory correction — co…" has lost the only part anyone
+ * reads the column for.
+ */
+
+
+/*
+ * What somebody actually wrote about this adjustment. Two lines, then an
+ * ellipsis — the rest is one click away in the row dialog, which is the only
+ * thing that makes clamping honest.
+ *
+ * Clamping cut text off mid-letter until the line-height was stated here.
+ * An inherited line-height and a max-height in `em` do not agree to the
+ * pixel, so the box ended part-way down a line instead of between two.
+ */
+.ledger__reason {
+  max-width: 280px;
+  white-space: normal;
+}
+
+/*
+ * The clamp lives on a span inside the cell, never on the cell.
+ * `display: -webkit-box` on a `<td>` stops it being a table cell at all, so
+ * the row no longer sizes to it — the text rendered at its full two lines
+ * and was sliced through the middle by the row below.
+ */
+.ledger__reason-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
+
+/* The stand-in when nobody wrote a note: the reason code's own name, muted
+   so it reads as the absence of a note rather than as one. */
+.ledger__reason--fallback { color: var(--text-muted); }
+
+/* Warehouse and site names read as one thing; breaking "Namayemba Warehouse"
+   across two lines makes a three-line row out of a one-line fact. */
+.ledger--adjustments td,
+.ledger--transfers td {
+  vertical-align: top;
+}
+
+/* 06 / Rows that open --------------------------------------------------- */
+
+/*
+ * An adjustment has no detail route — it is never edited and never deleted,
+ * so a page for it would be a URL holding eight read-only facts. The row
+ * opens a dialog instead. The number inside is a real button, so this is not
+ * a mouse-only affordance.
+ */
+.ledger--clickable tbody tr {
+  cursor: pointer;
+}
+
+.ledger--clickable tbody tr:focus-within {
+  background: var(--surface-sunken);
+}
+
+/* 07 / The row dialog ----------------------------------------------------- */
+
+.detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-4);
+}
+
+.detail-list dt {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-small);
+  color: var(--text-muted);
+}
+
+.detail-list dd {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.detail-list__muted { color: var(--text-muted); }
+
+.detail-notes {
+  padding: var(--space-4);
+  margin-top: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-lg);
+}
+
+.detail-notes__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-notes__body {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Two badges in the type cell — the kind, and DRAFT where it applies. */
+.ledger--adjustments td .badge + .badge { margin-left: var(--space-2); }
+
+/*
+ * `.ledger__link` was written for an anchor. Used on a button it inherits the
+ * browser's button chrome — a grey box, a border and the system font — so the
+ * three properties that differ are reset here rather than in orders.css,
+ * which every screen shares.
+ */
+button.ledger__link {
+  padding: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+/*
+ * The panel's footer line: its hint on the left, the date the change
+ * happened on the right.
+ *
+ * Deliberately not a field of its own. The design draws four boxes in this
+ * panel and two below it, and a fifth control would be a row nobody asked
+ * for — but the date still has to be settable, because the server compares
+ * and prices against it rather than against today.
+ */
+.count-panel__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.count-panel__foot > span { flex: 1 1 320px; }
+
+.count-panel__date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  color: var(--text-muted);
+}
+
+.count-panel__date input {
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--text-caption);
+  color: var(--text-primary);
+}
+
+.count-panel__date input:focus-visible {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 18%, transparent);
+}
+
+/* 08 / Long tables inside a dialog ---------------------------------------- */
+
+/*
+ * A transfer can carry thirty SKUs. The dialog itself already copes — it is
+ * capped at 88dvh and its body scrolls between a pinned head and footer, so
+ * it never runs off the screen — but the table's own header used to scroll
+ * away with the rows, leaving a column of bare numbers with nothing saying
+ * which was quantity and which was a code.
+ *
+ * Sticky against the scrolling body, so the header stays and the totals row
+ * still arrives at the end where it belongs.
+ */
+.modal__body .ledger thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* The dialog's own padding already frames the table; a second inset makes
+   the rows look indented rather than aligned with everything above them. */
+.modal__body .table-scroll { margin: 0 0 var(--space-4); }
+
+.modal__body .ledger tfoot td {
+  border-top: 1px solid var(--border);
+  border-bottom: 0;
+  font-weight: var(--weight-bold);
+}
+
+/* 09 / What an order is waiting on ---------------------------------------- */
+
+/*
+ * Every short line, on the row rather than behind a click. A count would say
+ * an order is stuck; these say what would unstick it, and that is the
+ * decision the clerk is actually making — wait for the next delivery, or
+ * move the order to a warehouse that has it.
+ */
+.shortfalls {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shortfalls__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.shortfalls__sku {
+  font-family: var(--font-mono, inherit);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.shortfalls__desc { color: var(--text-secondary); }
+
+/* The number that decides it. Red because it is a deficit, not a total. */
+.shortfalls__gap {
+  color: var(--error);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+/* The FIFO note under the queue. */
+.table-card__note svg { vertical-align: -2px; margin-right: var(--space-1); }

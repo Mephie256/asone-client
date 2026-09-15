@@ -1205,10 +1205,34 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         get: operations["catalog_warehouses_list"];
         put?: never;
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         post: operations["catalog_warehouses_create"];
         delete?: never;
         options?: never;
@@ -1223,16 +1247,64 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         get: operations["catalog_warehouses_retrieve"];
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         put: operations["catalog_warehouses_update"];
         post?: never;
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         delete: operations["catalog_warehouses_destroy"];
         options?: never;
         head?: never;
-        /** @description Where finished stock is held. */
+        /**
+         * @description Where finished stock is held.
+         *
+         *     Finance reads this, which the matrix's "Warehouses — view: Warehouse
+         *     Staff" line does not say on its face. It follows from two cells that do:
+         *     Finance's scope is *all locations*, and F23 gives them adjustments at
+         *     *all sites*. An adjustment names the warehouse it is posted at, so a role
+         *     that cannot list warehouses cannot post one — the picker on the New
+         *     Adjustment screen came up empty and there was no way to choose a site.
+         *
+         *     Read only, as for everybody outside the leads. Editing a warehouse is
+         *     still the Table Updates column.
+         */
         patch: operations["catalog_warehouses_partial_update"];
         trace?: never;
     };
@@ -1926,6 +1998,32 @@ export interface paths {
          *     Can only be done once.
          */
         post: operations["inventory_transfers_post_to_ledger_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/awaiting-stock/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Orders waiting for stock
+         * @description F43 and F44 — the held-order queue, oldest first.
+         *
+         *     An order appears here when it has been paid for and its warehouse cannot fill **every** line. Under the pack's rule (p.8) nothing part-ships, so a single short line holds the whole order.
+         *
+         *     It leaves the queue by one of two routes: stock arrives and it can be picked, or it is transferred to a warehouse that has the stock — `school-orders/{id}/transfer/`.
+         *
+         *     Derived on read, not a stored list. There is no backorder record to create, resolve or clean up.
+         */
+        get: operations["orders_awaiting_stock_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2708,6 +2806,56 @@ export interface paths {
          * @description Every despatch against this order. More than one is normal: a backorder filled by another warehouse ships separately, direct to the school (D2).
          */
         get: operations["orders_school_orders_shipments_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/school-orders/{id}/transfer/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Transfer the order to a warehouse with stock
+         * @description F45 — p.8's "option to transfer an order to another warehouse with Inventory", and decision D2.
+         *
+         *     **Nothing moves in the ledger.** No stock is reserved at either end; the receiving warehouse picks in the ordinary way afterwards and that pick is what touches inventory. What changes here is who is responsible.
+         *
+         *     The school keeps its primary warehouse — D2 is two rules and this is only the fulfilment one. Future orders are unaffected.
+         *
+         *     Refused if the target cannot fill every line, if it is already the one filling it, or if the order has been picked: stock is reserved by then, and re-pointing the order would strand that reservation.
+         */
+        post: operations["orders_school_orders_transfer_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/school-orders/{id}/transfer-candidates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Warehouses that could fill this order
+         * @description F45's shortlist — which warehouses hold enough of **every** line to finish the order.
+         *
+         *     Every line, not some. Under the pack's hold-complete rule (p.8) a transfer is only worth making to a warehouse that can finish the job; offering one that would itself come up short just moves the waiting somewhere else.
+         *
+         *     The warehouse currently responsible is excluded. A clerk cannot see another site's shelves, so asking them to guess is how an order gets sent somewhere empty.
+         */
+        get: operations["orders_school_orders_transfer_candidates_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4580,6 +4728,7 @@ export interface components {
             readonly school?: number;
             readonly school_name?: string;
             readonly warehouse_name?: string;
+            readonly transferred_to_name?: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name?: string;
             /**
@@ -4740,6 +4889,7 @@ export interface components {
             school: number;
             readonly school_name: string;
             readonly warehouse_name: string;
+            readonly transferred_to_name: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name: string;
             /**
@@ -5175,6 +5325,7 @@ export interface components {
             readonly school: number;
             readonly school_name: string;
             readonly warehouse_name: string;
+            readonly transferred_to_name: string;
             /** @description The student this uniform is for. Free text — students have no accounts. */
             student_name: string;
             /**
@@ -5416,11 +5567,13 @@ export interface components {
             sku_description: string;
             warehouse_id: number;
             warehouse_name: string;
-            /** @description Units on hand. */
+            /** @description Units available to pick. */
             level: number;
+            /** @description Units set aside for an order that has not shipped. Still physically on the shelf, so a physical count sees level + reserved, not level. */
+            reserved: number;
             /**
              * Format: decimal
-             * @description Value of that stock.
+             * @description Value of the available stock.
              */
             value: string;
         };
@@ -5482,6 +5635,24 @@ export interface components {
         };
         TokenVerify: {
             token: string;
+        };
+        /**
+         * @description Moving a whole held order to a warehouse with stock — F45.
+         *
+         *     The whole-order counterpart to AssignBackorderSerializer. Which of the
+         *     two is the live path depends on how AsOne answer part-shipping: under
+         *     the pack's hold-complete rule (p.8) an order short of stock is held
+         *     entire, so there are no per-SKU rows to assign and the order itself is
+         *     what moves.
+         */
+        TransferOrder: {
+            /** @description A warehouse holding enough of every line to finish the order. Get the list from `transfer-candidates/`. */
+            warehouse: number;
+            /**
+             * @description Why it moved. A transfer is somebody's judgement, so it is worth recording who decided and why.
+             * @default
+             */
+            reason: string;
         };
         /**
          * @description The current user, as returned by login and by GET /api/auth/me/.
@@ -8243,11 +8414,14 @@ export interface operations {
     inventory_adjustments_list: {
         parameters: {
             query?: {
+                date_from?: string;
+                date_to?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
-                posted_at?: string;
+                /** @description Posted to the ledger */
+                posted?: boolean;
                 reason_code?: number;
                 sku?: number;
                 warehouse?: number;
@@ -8644,12 +8818,15 @@ export interface operations {
     inventory_transfers_list: {
         parameters: {
             query?: {
+                date_from?: string;
+                date_to?: string;
                 from_warehouse?: number;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
-                posted_at?: string;
+                /** @description Posted to the ledger */
+                posted?: boolean;
                 to_warehouse?: number;
             };
             header?: never;
@@ -8761,6 +8938,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WarehouseTransfer"];
+                };
+            };
+        };
+    };
+    orders_awaiting_stock_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Required for an all-locations role; ignored for a clerk. */
+                warehouse?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };
@@ -9660,6 +9861,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedShipmentList"];
+                };
+            };
+        };
+    };
+    orders_school_orders_transfer_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this school order. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransferOrder"];
+                "application/x-www-form-urlencoded": components["schemas"]["TransferOrder"];
+                "multipart/form-data": components["schemas"]["TransferOrder"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolOrder"];
+                };
+            };
+        };
+    };
+    orders_school_orders_transfer_candidates_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this school order. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

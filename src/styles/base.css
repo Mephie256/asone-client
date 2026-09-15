@@ -16,6 +16,7 @@
 @import './receiving.css';
 @import './production.css';
 @import './users.css';
+@import './adjustments.css';
 /* Last: the print rules override screen layout by design. */
 @import './print.css';
 

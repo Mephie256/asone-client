@@ -24,7 +24,7 @@
  * navigation that leads somewhere forbidden is worse than one that is quiet.
  */
 
-import { canReadSchoolOrders } from '@/domain/access'
+import { can, canMoveStockBetweenWarehouses, canReadSchoolOrders } from '@/domain/access'
 import type { AccessFunction, CurrentUser } from '@/api/types'
 
 /**
@@ -101,6 +101,32 @@ export const NAVIGATION: readonly NavGroup[] = [
         requires: 'inventory_adjustments',
         icon: 'SlidersHorizontal',
       },
+      /*
+       * The design draws one destination here and reaches Warehouse
+       * Transfers as a tab inside it — which is right for Finance, who hold
+       * both. It leaves the two leads with no door at all: F25 grants them
+       * transfers, and the entry above is Finance-only.
+       *
+       * So this appears for whoever can transfer but cannot adjust. Finance
+       * still sees one item, as drawn, and reaches transfers by the tab.
+       */
+      {
+        label: 'Stock Transfers',
+        path: '/adjustments/transfers',
+        requires: (user) =>
+          canMoveStockBetweenWarehouses(user) && !can(user, 'inventory_adjustments'),
+        icon: 'ArrowLeftRight',
+      },
+      /*
+       * "Backorders" is AsOne's own word and the one they use in the pack, so
+       * it is the one on screen — renaming a thing the client already has a
+       * name for costs more than it explains.
+       *
+       * It is worth knowing that nothing here is a record: an order is
+       * backordered because it is paid for and its warehouse is short, and it
+       * stops being one when that stops being true. The screen says so, so
+       * nobody goes looking for something to create or resolve.
+       */
       {
         label: 'Backorders',
         path: '/backorders',
@@ -180,4 +206,26 @@ export const ALL_NAV_ITEMS: readonly NavItem[] = NAVIGATION.flatMap((group) => g
  */
 export function findNavItem(path: string): NavItem | null {
   return ALL_NAV_ITEMS.find((item) => item.path === path) ?? null
+}
+
+/**
+ * The group holding the destination a path belongs to, or null.
+ *
+ * Longest matching path wins, so `/adjustments/transfers` picks the transfer
+ * entry rather than whichever adjustment route happens to be listed first —
+ * the same rule `helpFor` uses, for the same reason.
+ */
+export function groupForPath(pathname: string): string | null {
+  let best: { label: string; length: number } | null = null
+
+  for (const group of NAVIGATION) {
+    for (const item of group.items) {
+      if (!pathname.startsWith(item.path)) continue
+      if (!best || item.path.length > best.length) {
+        best = { label: group.label, length: item.path.length }
+      }
+    }
+  }
+
+  return best?.label ?? null
 }

@@ -39,8 +39,23 @@
  * A section that genuinely needs to sit tighter says so itself; that is now
  * a deliberate exception rather than the default.
  */
-.shell__content > * + * {
+.shell__content > * + *:not(dialog) {
   margin-top: var(--space-5);
+}
+
+/*
+ * A dialog is excluded because it is not a block in this flow. It renders in
+ * the top layer and contributes no layout — but it is still a child of the
+ * screen that opened it, so the owl was handing it `margin-top: 24px`, and
+ * that margin is what a modal dialog's `inset: 0` resolves against.
+ *
+ * The visible effect was a dialog sitting 24px below the middle of the
+ * screen, everywhere: 247px of gap above the card and 199px below it, at
+ * 1440x900. The card was centred correctly inside a host that was itself
+ * pushed down.
+ */
+dialog {
+  margin: 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -517,4 +532,45 @@
 .topbar__site--active {
   background: var(--tone-slate);
   border-color: var(--tone-slate);
+}
+
+/* ---------------------------------------------------------------------------
+ * Context help
+ *
+ * One idea per line, set for reading standing up at a warehouse bench.
+ * ------------------------------------------------------------------------ */
+
+.help__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.help__point {
+  position: relative;
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* A marker rather than a bullet glyph, so it lines up with the first line
+   of text whatever the font does. */
+.help__point::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.help__none {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }

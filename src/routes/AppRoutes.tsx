@@ -35,14 +35,17 @@ import { OrdersListScreen } from '@/features/orders/screens/OrdersListScreen'
 import { UsersRolesScreen } from '@/features/users/screens/UsersRolesScreen'
 import { CreateProductionOrderScreen } from '@/features/production/screens/CreateProductionOrderScreen'
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
+import { AdjustmentsScreen } from '@/features/adjustments/screens/AdjustmentsScreen'
+import { NewAdjustmentScreen } from '@/features/adjustments/screens/NewAdjustmentScreen'
+import { NewTransferScreen } from '@/features/adjustments/screens/NewTransferScreen'
+import { TransfersScreen } from '@/features/adjustments/screens/TransfersScreen'
 import { BackordersScreen } from '@/features/backorders/screens/BackordersScreen'
-import { ReleaseBackordersScreen } from '@/features/backorders/screens/ReleaseBackordersScreen'
 import { ProductionOrdersScreen } from '@/features/production/screens/ProductionOrdersScreen'
 import { ReceivingScreen } from '@/features/receiving/screens/ReceivingScreen'
 import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetailScreen'
 import { PickingScreen } from '@/features/shipments/screens/PickingScreen'
 import { ShipmentsScreen } from '@/features/shipments/screens/ShipmentsScreen'
-import { canReadSchoolOrders } from '@/domain/access'
+import { canMoveStockBetweenWarehouses, canReadSchoolOrders } from '@/domain/access'
 import { SchoolDetailScreen } from '@/features/catalog/screens/SchoolDetailScreen'
 import { SchoolsScreen } from '@/features/catalog/screens/SchoolsScreen'
 import { WarehouseDetailScreen } from '@/features/catalog/screens/WarehouseDetailScreen'
@@ -71,6 +74,7 @@ const SCREENS: Record<string, ComponentType> = {
   '/production-orders': ProductionOrdersScreen,
   '/backorders': BackordersScreen,
   '/users': UsersRolesScreen,
+  '/adjustments': AdjustmentsScreen,
   // The landing view is the picking backlog; despatched shipments are the
   // history behind it.
   '/shipments': PickingScreen,
@@ -134,12 +138,43 @@ export function AppRoutes() {
             }
           />
 
+          {/*
+            Transfers before /adjustments/new, and both before the generated
+            /adjustments route, so the more specific path is matched first.
+
+            The transfer routes are guarded on `stock_transfers`, not
+            `inventory_adjustments`: F25 gives transfers to both leads as well
+            as Finance, where the adjustment screens are Finance alone. Gating
+            them together would deny the leads a feature the matrix grants.
+          */}
           <Route
-            path="/backorders/release"
+            path="/adjustments/transfers/new"
             element={
               <RequireAuth>
-                <RequireAccess requires="warehouse_receiving_and_shipping">
-                  <ReleaseBackordersScreen />
+                <RequireAccess requires={canMoveStockBetweenWarehouses}>
+                  <NewTransferScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/adjustments/transfers"
+            element={
+              <RequireAuth>
+                <RequireAccess requires={canMoveStockBetweenWarehouses}>
+                  <TransfersScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/adjustments/new"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="inventory_adjustments">
+                  <NewAdjustmentScreen />
                 </RequireAccess>
               </RequireAuth>
             }
