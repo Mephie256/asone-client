@@ -24,7 +24,13 @@
  * navigation that leads somewhere forbidden is worse than one that is quiet.
  */
 
-import { can, canMoveStockBetweenWarehouses, canReadSchoolOrders } from '@/domain/access'
+import {
+  can,
+  canMoveStockBetweenWarehouses,
+  canReadKits,
+  canReadPrices,
+  canReadSchoolOrders,
+} from '@/domain/access'
 import type { AccessFunction, CurrentUser } from '@/api/types'
 
 /**
@@ -150,7 +156,14 @@ export const NAVIGATION: readonly NavGroup[] = [
        */
       { label: 'Stock History', path: '/stock-history', requires: null, icon: 'History' },
 
-      { label: 'Uniform Kits', path: '/kits', requires: null, icon: 'Shirt' },
+      /*
+       * Not `null`. A kit is a way of ordering, and F33 turns it into
+       * component SKUs the moment an order is placed — a warehouse never
+       * picks or counts one, and KitViewSet gives them no read access. The
+       * entry used to be visible to everyone and led a warehouse clerk to a
+       * guaranteed 403.
+       */
+      { label: 'Uniform Kits', path: '/kits', requires: canReadKits, icon: 'Shirt' },
 
       /*
        * Garments, SKUs and pricing had no destination at all until
@@ -165,7 +178,19 @@ export const NAVIGATION: readonly NavGroup[] = [
        */
       { label: 'Garments', path: '/garments', requires: 'table_updates', icon: 'Shirt' },
       { label: 'SKUs', path: '/skus', requires: null, icon: 'Tags' },
-      { label: 'Pricing', path: '/pricing', requires: null, icon: 'Coins' },
+      /*
+       * Kept, and gated.
+       *
+       * AsOne's p.7 says "all pricing is controlled by this system", and
+       * nothing else in the app is a door to it: a school reads the price
+       * list it orders from, Finance reads prices they cannot set, and the
+       * leads set them. There is no second route in.
+       *
+       * `requires: null` was wrong for the same reason it was wrong on kits
+       * — GarmentPriceViewSet excludes warehouse staff, so the entry led a
+       * clerk to a 403.
+       */
+      { label: 'Pricing', path: '/pricing', requires: canReadPrices, icon: 'Coins' },
     ],
   },
   {

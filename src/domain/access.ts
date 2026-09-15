@@ -264,3 +264,44 @@ export function canMoveStockBetweenWarehouses(user: CurrentUser | null): boolean
     user.role === 'FINANCE'
   )
 }
+
+/**
+ * Who may read the uniform kit catalogue — F07.
+ *
+ * School Staff and Finance, plus both leads. Not warehouse staff, and that is
+ * the interesting part: a kit is a way of *ordering*, and F33 turns it into
+ * component SKUs the moment an order is placed. A warehouse never picks,
+ * packs or counts a kit, so it has nothing to read here.
+ *
+ * The design draws "Uniform Kits" in a sidebar footed "Warehouse Lead", but
+ * that is not one of AsOne's five roles — the same placeholder the dashboard
+ * frame uses. Taken as a mock-up caption rather than an access decision.
+ *
+ * Mirrors `catalog/views.py::KitViewSet.read_roles`.
+ */
+export function canReadKits(user: CurrentUser | null): boolean {
+  if (!user) return false
+  return (
+    user.role === 'SCHOOL_STAFF' ||
+    user.role === 'FINANCE' ||
+    user.role === 'PROGRAM_LEAD' ||
+    user.role === 'OPERATIONS_MANAGER'
+  )
+}
+
+/**
+ * Who may read prices — F04.
+ *
+ * The same set as kits, and for a different reason: a school sees the price
+ * list it orders from, Finance reads costed reports, and the leads set the
+ * prices. A warehouse clerk picks garments and never quotes one, so the
+ * matrix gives them no price access at all.
+ *
+ * `requires: null` on the Pricing nav entry put it in a warehouse clerk's
+ * sidebar and led them to a guaranteed 403.
+ *
+ * Mirrors `catalog/views.py::GarmentPriceViewSet.read_roles`.
+ */
+export function canReadPrices(user: CurrentUser | null): boolean {
+  return canReadKits(user)
+}

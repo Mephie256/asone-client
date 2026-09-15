@@ -77,6 +77,19 @@ export const HELP_TOPICS: readonly HelpTopic[] = [
     transfer notes and /adjustments/new inherits the adjustment ones.
   */
   {
+    path: '/kits',
+    title: 'Uniform Kits',
+    points: [
+      'A kit is a bundle a school orders as one line instead of five \u2014 a starter kit, say. It is a convenience for ordering and nothing more.',
+      'No warehouse ever holds a kit. The moment one is ordered it becomes its component items, and picking, packing, shipping and the ledger all work from those. That is why a kit has no stock level.',
+      'The price is the sum of its components at today\u2019s prices. A kit has no price of its own and no bundle discount, so repricing a garment changes every kit containing it the same day.',
+      '\u201cCannot be priced\u201d means a component has no price on today\u2019s list, or the kit is empty. It is not zero, and a school cannot order it until the gap is filled.',
+      'A kit belongs to one school level. A Primary kit cannot contain a High-School-only garment, so the picker only offers what fits.',
+      'Kits are deactivated, never deleted. An inactive kit cannot be added to a new order; orders already placed are unaffected and reports still name it.',
+      'Only the leads build kits. Schools and Finance read them.',
+    ],
+  },
+  {
     path: '/adjustments/transfers',
     title: 'Warehouse Transfers',
     points: [

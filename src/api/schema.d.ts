@@ -3748,6 +3748,8 @@ export interface components {
             kit_number: string;
             /** @description For example "PS Starter Kit". */
             name: string;
+            /** @description Who this kit is for, in a sentence. Shown to schools choosing one. */
+            description?: string;
             school_level: components["schemas"]["SchoolLevelEnum"];
             readonly school_level_display: string;
             /** @description Inactive kits stay in reports but cannot be ordered. */
@@ -4573,6 +4575,8 @@ export interface components {
             kit_number?: string;
             /** @description For example "PS Starter Kit". */
             name?: string;
+            /** @description Who this kit is for, in a sentence. Shown to schools choosing one. */
+            description?: string;
             school_level?: components["schemas"]["SchoolLevelEnum"];
             readonly school_level_display?: string;
             /** @description Inactive kits stay in reports but cannot be ordered. */
@@ -4775,6 +4779,7 @@ export interface components {
             readonly number?: string;
             garment?: number;
             readonly garment_name?: string;
+            readonly garment_school_level?: string;
             size?: number;
             readonly size_name?: string;
             /** @description Filled in from the garment and size if left blank. */
@@ -5537,6 +5542,7 @@ export interface components {
             readonly number: string;
             garment: number;
             readonly garment_name: string;
+            readonly garment_school_level: string;
             size: number;
             readonly size_name: string;
             /** @description Filled in from the garment and size if left blank. */
