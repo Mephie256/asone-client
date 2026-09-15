@@ -25,6 +25,7 @@ import { AuthProvider } from '@/features/auth/AuthProvider'
 import { NavGroupsProvider } from '@/features/shell/NavGroupsProvider'
 import { WarehouseFilterProvider } from '@/features/shell/WarehouseFilterProvider'
 import { CreateAccountScreen } from '@/features/auth/screens/CreateAccountScreen'
+import { SetPasswordScreen } from '@/features/auth/screens/SetPasswordScreen'
 import { SignInScreen } from '@/features/auth/screens/SignInScreen'
 import { WelcomeScreen } from '@/features/auth/screens/WelcomeScreen'
 import { HomeScreen } from '@/features/dashboard/screens/HomeScreen'
@@ -35,6 +36,7 @@ import { OrdersListScreen } from '@/features/orders/screens/OrdersListScreen'
 import { UsersRolesScreen } from '@/features/users/screens/UsersRolesScreen'
 import { CreateProductionOrderScreen } from '@/features/production/screens/CreateProductionOrderScreen'
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
+import { UserProfileScreen } from '@/features/users/screens/UserProfileScreen'
 import { CreateKitScreen } from '@/features/kits/screens/CreateKitScreen'
 import { EditKitScreen } from '@/features/kits/screens/EditKitScreen'
 import { KitDetailScreen } from '@/features/kits/screens/KitDetailScreen'
@@ -106,6 +108,10 @@ export function AppRoutes() {
               <Routes>
           <Route path={paths.welcome} element={<WelcomeScreen />} />
           <Route path={paths.signIn} element={<SignInScreen />} />
+          {/* Outside RequireAuth's guard: a gated user is redirected here by
+              it, so guarding this route with it would be a loop. The screen
+              checks the session itself. */}
+          <Route path={paths.setPassword} element={<SetPasswordScreen />} />
           <Route path={paths.createAccount} element={<CreateAccountScreen />} />
 
           {/*
@@ -168,6 +174,19 @@ export function AppRoutes() {
               <RequireAuth>
                 <RequireAccess requires="table_updates">
                   <CreateKitScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          {/* Managing an account is the Table Updates column, same as the
+              list it is reached from. */}
+          <Route
+            path="/users/:userId"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="table_updates">
+                  <UserProfileScreen />
                 </RequireAccess>
               </RequireAuth>
             }
