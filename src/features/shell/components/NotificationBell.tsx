@@ -33,7 +33,15 @@ export function NotificationBell() {
     const onPointerDown = (event: MouseEvent) => {
       if (!container.current?.contains(event.target as Node)) setOpen(false)
     }
-    const onKeyDown = (event: KeyboardEvent) => {
+    /*
+      `globalThis.KeyboardEvent`, not the `KeyboardEvent` imported from React
+      above. That import is React's synthetic event — right for the JSX
+      handler further down, wrong for `document.addEventListener`, which
+      hands out the DOM one. The two are different types with the same name,
+      and the file's own import was shadowing the one this line needs, so
+      `tsc -b` refused to build.
+    */
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
 
