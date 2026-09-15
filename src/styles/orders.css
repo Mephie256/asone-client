@@ -279,7 +279,19 @@
  * Table card — the table and its footer share one bordered surface
  * ------------------------------------------------------------------------ */
 
+/*
+ * `min-width: 0` is what makes the table inside it scroll.
+ *
+ * A flex or grid item defaults to `min-width: auto`, which refuses to shrink
+ * below its content — so a wide `.ledger` pushed this card past the viewport
+ * and the *page* scrolled sideways instead of the table. Measured at 390px:
+ * every table screen overflowed, the worst by 90px.
+ *
+ * `overflow: hidden` was already here for the rounded corners and does not
+ * help: the card had grown, so there was nothing left to clip.
+ */
 .table-card {
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
