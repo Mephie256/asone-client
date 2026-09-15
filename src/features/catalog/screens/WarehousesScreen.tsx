@@ -22,9 +22,10 @@ import { WarehouseCard } from '../components/WarehouseCard'
 import { useWarehouses, type WarehouseFilters } from '../hooks/useWarehouses'
 import { useWarehouseSummaries } from '../hooks/useWarehouseSummaries'
 import type { Warehouse } from '@/api/types'
+import { LIST_PAGE_SIZE } from '@/api/pageSize'
 
 const EMPTY_FILTERS: WarehouseFilters = { page: 1 }
-const PAGE_SIZE = 50
+const PAGE_SIZE = LIST_PAGE_SIZE
 
 export function WarehousesScreen() {
   const [filters, setFilters] = useState<WarehouseFilters>(EMPTY_FILTERS)

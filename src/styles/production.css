@@ -19,6 +19,15 @@
   border-radius: var(--radius-lg);
 }
 
+/* A filter band already inside a card. The card provides the surface and the
+   border, so repeating them here would draw a box inside a box. */
+.filter-bar--inline {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
 .filter-bar__search {
   display: flex;
   align-items: center;
@@ -451,8 +460,17 @@ span.line-note { display: block; }
   color: var(--text-secondary);
 }
 
-/* The header above a table that is not the whole card. */
+/* The header above a table that is not the whole card.
+
+   A row, so a filter can sit opposite the title rather than above it and
+   push the table down. It wraps at narrow widths and the filter falls under
+   the title, which is the only sensible thing at phone width. */
 .table-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
   padding: var(--space-4) var(--space-5) 0;
 }
 
