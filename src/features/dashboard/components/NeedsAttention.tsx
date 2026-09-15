@@ -11,14 +11,17 @@
  */
 
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
+import type { KeyboardEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Panel, SkeletonRows } from '@/components'
-import { alertTone } from '@/domain/status'
+import { alertPath, alertTone } from '@/domain/status'
 import { PREVIEW } from '../previewLimits'
 import type { DashboardData } from '../hooks/useDashboardData'
 
 export function NeedsAttention({ data }: { data: DashboardData }) {
   const { alerts, loading } = data
   const shown = alerts.slice(0, PREVIEW.alerts)
+  const navigate = useNavigate()
 
   return (
     <Panel
@@ -42,17 +45,36 @@ export function NeedsAttention({ data }: { data: DashboardData }) {
         </p>
       ) : (
         <ul className="attention">
-          {shown.map((alert) => (
-            <li className="attention__item" key={`${alert.kind}-${alert.message}`}>
-              <span className="attention__label">
-                <AlertTriangle size={18} aria-hidden />
-                {alert.message}
-              </span>
-              <span className={`attention__tag attention__tag--${alertTone(alert.level)}`}>
-                {alert.level}
-              </span>
-            </li>
-          ))}
+          {shown.map((alert) => {
+            const to = alertPath(alert.kind, alert.ref_id)
+            return (
+              <li
+                className={`attention__item${to ? ' attention__item--clickable' : ''}`}
+                key={`${alert.kind}-${alert.message}`}
+                {...(to
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onClick: () => navigate(to),
+                      onKeyDown: (event: KeyboardEvent) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          navigate(to)
+                        }
+                      },
+                    }
+                  : {})}
+              >
+                <span className="attention__label">
+                  <AlertTriangle size={18} aria-hidden />
+                  {alert.message}
+                </span>
+                <span className={`attention__tag attention__tag--${alertTone(alert.level)}`}>
+                  {alert.level}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       )}
 

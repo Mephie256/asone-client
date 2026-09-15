@@ -24,6 +24,7 @@ import { SnackbarProvider } from '@/components'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { NavGroupsProvider } from '@/features/shell/NavGroupsProvider'
 import { WarehouseFilterProvider } from '@/features/shell/WarehouseFilterProvider'
+import { CreateAccountScreen } from '@/features/auth/screens/CreateAccountScreen'
 import { SignInScreen } from '@/features/auth/screens/SignInScreen'
 import { WelcomeScreen } from '@/features/auth/screens/WelcomeScreen'
 import { HomeScreen } from '@/features/dashboard/screens/HomeScreen'
@@ -31,6 +32,7 @@ import { ReportsIndexScreen } from '@/features/reports/screens/ReportsIndexScree
 import { StockReportScreen } from '@/features/reports/screens/StockReportScreen'
 import { OrderDetailScreen } from '@/features/orders/screens/OrderDetailScreen'
 import { OrdersListScreen } from '@/features/orders/screens/OrdersListScreen'
+import { UsersRolesScreen } from '@/features/users/screens/UsersRolesScreen'
 import { CreateProductionOrderScreen } from '@/features/production/screens/CreateProductionOrderScreen'
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
 import { AdjustmentsScreen } from '@/features/adjustments/screens/AdjustmentsScreen'
@@ -71,6 +73,7 @@ const SCREENS: Record<string, ComponentType> = {
   '/receiving': ReceivingScreen,
   '/production-orders': ProductionOrdersScreen,
   '/backorders': BackordersScreen,
+  '/users': UsersRolesScreen,
   '/adjustments': AdjustmentsScreen,
   // The landing view is the picking backlog; despatched shipments are the
   // history behind it.
@@ -94,6 +97,7 @@ export function AppRoutes() {
               <Routes>
           <Route path={paths.welcome} element={<WelcomeScreen />} />
           <Route path={paths.signIn} element={<SignInScreen />} />
+          <Route path={paths.createAccount} element={<CreateAccountScreen />} />
 
           {/*
             Detail screens that hang off a nav destination rather than being

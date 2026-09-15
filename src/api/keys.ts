@@ -58,6 +58,8 @@ export const keys = {
     filters ? (['users', filters] as const) : (['users'] as const),
   user: (id: number) => ['users', id] as const,
   roles: () => ['roles'] as const,
+  registrationRequests: (status?: string) =>
+    status ? (['registration-requests', status] as const) : (['registration-requests'] as const),
 
   // Settings — the signed-in user. Invalidate after editing own details or
   // changing a password, since the password change returns fresh tokens.
