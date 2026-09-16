@@ -11,16 +11,6 @@
  * Page head
  * ------------------------------------------------------------------------ */
 
-/*
- * Every other screen's `.page-head__title` is --accent (teal) — the shared
- * rule in shell.css. The reference design for this one screen has it dark
- * instead, so the override lives here, scoped to this screen, rather than
- * changing the shared class and darkening every other page's title too.
- */
-.inventory-page-head .page-head__title {
-  color: var(--text-primary);
-}
-
 /* ---------------------------------------------------------------------------
  * Filter bar
  * ------------------------------------------------------------------------ */

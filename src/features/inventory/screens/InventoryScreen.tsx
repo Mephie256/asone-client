@@ -100,7 +100,7 @@ export function InventoryScreen() {
     <AppShell title="Inventory">
       <div className={selectedRow ? 'inventory-layout inventory-layout--split' : 'inventory-layout'}>
         <div className="inventory-layout__main">
-          <header className="page-head page-head--split inventory-page-head">
+          <header className="page-head page-head--split">
             <div>
               <p className="page-head__eyebrow">Inventory / Overview</p>
               <h1 className="page-head__title">Inventory Overview</h1>
