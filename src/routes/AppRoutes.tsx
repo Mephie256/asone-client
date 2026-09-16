@@ -44,6 +44,7 @@ import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetai
 import { PickingScreen } from '@/features/shipments/screens/PickingScreen'
 import { ShipmentsScreen } from '@/features/shipments/screens/ShipmentsScreen'
 import { canMoveStockBetweenWarehouses, canReadSchoolOrders } from '@/domain/access'
+import { InventoryScreen } from '@/features/inventory/screens/InventoryScreen'
 import { SchoolDetailScreen } from '@/features/catalog/screens/SchoolDetailScreen'
 import { SchoolsScreen } from '@/features/catalog/screens/SchoolsScreen'
 import { WarehouseDetailScreen } from '@/features/catalog/screens/WarehouseDetailScreen'
@@ -65,6 +66,7 @@ const SCREENS: Record<string, ComponentType> = {
   '/dashboard': HomeScreen,
   '/reports': ReportsIndexScreen,
   '/orders': OrdersListScreen,
+  '/inventory': InventoryScreen,
   '/schools': SchoolsScreen,
   '/warehouses': WarehousesScreen,
   '/tailoring-centers': TailoringCentersScreen,

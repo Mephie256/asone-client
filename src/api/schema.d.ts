@@ -3303,7 +3303,7 @@ export interface components {
          *     through to the screen that has those.
          */
         AttentionAlert: {
-            /** @description Stable identifier for the frontend to route on: low_stock, orders_on_hold, receipts_unreconciled, backorders_fillable. */
+            /** @description Stable identifier for the frontend to route on: low_stock, orders_on_hold, receipts_unreconciled, backorders_fillable, registrations_pending. */
             kind: string;
             /** @description CRITICAL, HOLD, INSPECTION or READY. */
             level: string;
@@ -3421,7 +3421,7 @@ export interface components {
             /** @default  */
             notes: string;
         };
-        /** @description The six tiles across the top — F62. */
+        /** @description The tiles across the top — F62, plus the warehouse hub console's own. */
         DashboardSummary: {
             /** @description Units on hand and free to promise. */
             available_units: number;
@@ -4701,6 +4701,8 @@ export interface components {
             is_active?: boolean;
             /** @default 0 */
             readonly active_orders_count: number;
+            /** @default 0 */
+            readonly distinct_students_count: number;
         };
         /** @description An order, reading. Doubles as the invoice — same number, same lines. */
         PatchedSchoolOrder: {
@@ -5267,6 +5269,8 @@ export interface components {
             is_active?: boolean;
             /** @default 0 */
             readonly active_orders_count: number;
+            /** @default 0 */
+            readonly distinct_students_count: number;
         };
         /** @description Something the school ordered that the warehouse could not fill. */
         SchoolBackorder: {
@@ -9273,6 +9277,8 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                /** @description Narrow to one site. Ignored for Warehouse Staff, who are already scoped to their own; an all-locations role sees every site without it. */
+                warehouse?: number;
             };
             header?: never;
             path?: never;
@@ -9322,6 +9328,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9431,6 +9438,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9468,6 +9476,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9561,6 +9570,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9620,6 +9630,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9679,6 +9690,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9722,6 +9734,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
@@ -9815,6 +9828,7 @@ export interface operations {
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
+                school?: number;
                 /**
                  * @description * `HOLD` - On hold — awaiting payment
                  *     * `RELEASED` - Released to the warehouse
