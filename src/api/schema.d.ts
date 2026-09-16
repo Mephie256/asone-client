@@ -3800,6 +3800,19 @@ export interface components {
          *
          *     Inactive accounts are rejected by Django's own authentication backend, so
          *     deactivating a user is enough to lock them out at the next login.
+         *
+         *     ## The refusal wording
+         *
+         *     simplejwt's default is "No active account found with the given
+         *     credentials", which is wrong here in two ways. It is not true — the view
+         *     has already established through `user_with_access` that the account
+         *     exists and is active, so by the time this serializer runs the *only*
+         *     thing that can be wrong is the password. And it reads as a system fault
+         *     rather than a typo, so people retype the same password expecting a
+         *     different answer.
+         *
+         *     Saying "that password is not right" gives nothing away that the step
+         *     before has not already given away.
          */
         Login: {
             email: string;
