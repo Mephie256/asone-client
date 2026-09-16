@@ -167,7 +167,13 @@
 .badge--warning { background: var(--warning-bg); color: var(--warning); }
 .badge--error   { background: var(--error-bg);   color: var(--error); }
 .badge--info    { background: var(--info-bg);    color: var(--info); }
-.badge--purple  { background: #f3e8ff;           color: #9333ea; }
+.badge--purple  { background: var(--violet-bg);   color: var(--violet); }
+
+/* Identity colours — see tokens.css. Used to tell roles apart, where no
+   value is better than another and the semantic tones would imply one. */
+.badge--teal    { background: var(--teal-bg);     color: var(--teal); }
+.badge--amber   { background: var(--amber-bg);    color: var(--amber); }
+.badge--rose    { background: var(--rose-bg);     color: var(--rose); }
 .badge--neutral { background: var(--surface-sunken); color: var(--text-secondary); }
 
 /* Label/value pairs — a record's detail panel. */
@@ -1384,7 +1390,7 @@ button.page-dots__dot {
   place-items: center;
 }
 
-.modal-host::backdrop { background: rgba(33, 35, 43, 0.45); }
+.modal-host::backdrop { background: var(--scrim); }
 
 .modal {
   width: min(100% - 2 * var(--space-5), 440px);

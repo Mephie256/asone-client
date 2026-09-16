@@ -567,7 +567,7 @@
     /* One slip per sheet: they travel with different boxes. */
     page-break-after: always;
     padding: 24px;
-    color: #000;
+    color: var(--print-ink);
   }
 
   .slip:last-child { page-break-after: auto; }
@@ -620,7 +620,7 @@
 .slip__table th,
 .slip__table td {
   padding: 6px 8px;
-  border-bottom: 1px solid #999;
+  border-bottom: 1px solid var(--print-rule);
   text-align: left;
 }
 

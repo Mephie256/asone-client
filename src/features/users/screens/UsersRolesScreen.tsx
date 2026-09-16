@@ -112,7 +112,7 @@ export function UsersRolesScreen() {
   }
 
   return (
-    <AppShell title="Users & Roles">
+    <AppShell title="Users & Roles" searchHint="name or email">
       <header className="page-head page-head--split">
         <div>
           <h1 className="page-head__title">Users & Roles</h1>

@@ -418,7 +418,7 @@
   min-width: 0;
   padding: var(--space-4) 20px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(168deg, var(--asone-green) 23%, #d0fffb 104%);
+  background: linear-gradient(168deg, var(--asone-green) 23%, var(--asone-green-glow) 104%);
   color: var(--text-on-dark);
 }
 

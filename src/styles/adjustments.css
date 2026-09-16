@@ -383,7 +383,7 @@ button.ledger__link {
 }
 
 .shortfalls__sku {
-  font-family: var(--font-mono, inherit);
+  font-family: var(--font-mono);
   font-weight: var(--weight-bold);
   color: var(--text-primary);
 }

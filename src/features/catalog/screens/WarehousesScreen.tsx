@@ -49,7 +49,7 @@ export function WarehousesScreen() {
   const pageCount = Math.max(Math.ceil(totalCount / PAGE_SIZE), 1)
 
   return (
-    <AppShell title="Warehouses">
+    <AppShell title="Warehouses" searchHint="warehouse">
       <header className="page-head">
         <h1 className="page-head__title">Warehouses</h1>
         <p className="page-head__subtitle">

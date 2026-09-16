@@ -60,7 +60,7 @@ export function TransfersScreen() {
   const open = rows.find((row) => row.id === openId) ?? null
 
   return (
-    <AppShell title="Warehouse Transfers">
+    <AppShell title="Warehouse Transfers" searchHint="transfer or SKU">
       <header className="page-head page-head--split">
         <div>
           <h1 className="page-head__title">Warehouse Transfers</h1>

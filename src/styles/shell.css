@@ -383,19 +383,148 @@ dialog {
   line-height: 1.2;
 }
 
+/* ---------------------------------------------------------------------------
+ * The navigation drawer
+ *
+ * Above 1080px the sidebar is simply there and none of this applies: the
+ * menu button is hidden, the scrim never shows, and the grid keeps its two
+ * columns.
+ *
+ * Below it the rail is gone and the nav slides in over the content. It used
+ * to collapse to 72px of icons instead, which cost 18% of a 390px phone
+ * permanently and — with the labels hidden — left recognising the icon as
+ * the only way to find a screen.
+ * ------------------------------------------------------------------------ */
+
+/* Hidden above the breakpoint, where there is a sidebar and nothing to open. */
+.topbar__menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: var(--surface-container);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.topbar__menu:hover { background: var(--surface); }
+
+.shell__scrim { display: none; }
+
 @media (max-width: 1080px) {
-  /* Below this the sidebar costs more than it gives. A drawer is the right
-     answer; the mobile designs will say which. Until then it collapses to
-     icons so the content column keeps its width. */
-  .shell { grid-template-columns: 72px minmax(0, 1fr); }
-  .sidebar { padding: 20px var(--space-2); }
-  .sidebar__wordmark,
-  .sidebar__group-label,
-  .sidebar__link span,
-  .sidebar__user-text { display: none; }
-  .sidebar__link { justify-content: center; padding: var(--space-2); }
-  .sidebar__user { justify-content: center; }
-  .topbar { flex-wrap: wrap; }
+  /* One column. The sidebar leaves the grid entirely — see below. */
+  .shell { grid-template-columns: minmax(0, 1fr); }
+
+  .topbar__menu { display: inline-flex; }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    width: min(280px, 82vw);
+    max-height: none;
+    margin: 0;
+    border-radius: 0;
+    overflow-y: auto;
+    /* Off-canvas, and `visibility` rather than transform alone so a closed
+       drawer is out of the tab order as well as out of sight. */
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 180ms ease, visibility 180ms ease;
+  }
+
+  .shell[data-nav-open] .sidebar {
+    transform: none;
+    visibility: visible;
+  }
+
+  .shell__scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    width: 100%;
+    padding: 0;
+    background: var(--scrim);
+    border: none;
+    cursor: pointer;
+  }
+
+  /* The page behind must not scroll under an open drawer — on a phone that
+     reads as the drawer having come loose from the page. */
+  .is-nav-open body { overflow: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+ * Phone
+ * ------------------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  /* The bar carries four things and cannot hold them on one line. The menu
+     button, the screen name and the actions stay on the first; search — the
+     one that is inert anyway — takes the second. */
+  .topbar {
+    flex-wrap: wrap;
+    margin: var(--space-3) var(--space-3) 0;
+    padding: var(--space-3);
+    gap: var(--space-3);
+  }
+
+  /*
+    One row, not four.
+
+    Search is the thing that gives way, because it is inert on this build —
+    `SearchFilter` is not in the server's DEFAULT_FILTER_BACKENDS, so every
+    `search_fields` declaration in the catalog is dead and the input is
+    disabled. A dead control is not worth a row of a 390px phone. It comes
+    back with the feature.
+
+    What is left fits on one line: the menu button and the screen name hold
+    their size, the actions hold theirs, and the site picker takes what is
+    between them — it already shrinks and ellipsises rather than forcing the
+    bar wider.
+  */
+  .topbar__search { display: none; }
+
+  /*
+    `display: contents` dissolves the left group so its three children become
+    flex items of the bar itself. Without it the site picker is trapped in
+    the same box as the menu button and the screen name, and the three
+    together are wider than the phone — so the whole group took one row and
+    pushed the bell and help onto another, with nothing beside them.
+
+    Dissolved, each child can be placed on its own: the menu button, the
+    screen name and the actions share the top line, and the site picker —
+    the one that needs the room — takes the second.
+  */
+  .topbar__left {
+    display: contents;
+  }
+
+  .topbar__menu { order: 1; }
+  .topbar__chip { order: 2; margin-right: auto; }
+  .topbar__actions { order: 3; flex: none; }
+  .topbar__left > .topbar__site { order: 4; flex: 1 1 100%; }
+
+  .shell__content { padding: var(--space-4) var(--space-3) var(--space-5); }
+
+  /* A head that puts its action opposite the title stacks instead — at this
+     width side by side leaves the title one word per line. */
+  .page-head--split {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 /* ---------------------------------------------------------------------------

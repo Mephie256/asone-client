@@ -14,10 +14,11 @@
  */
 
 import { Users as UsersIcon } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Badge, EmptyState, SkeletonRows } from '@/components'
 import { formatDay } from '@/domain/dates'
 import type { RegistrationRequest, UserAdmin } from '@/api/types'
+import { roleTone } from '@/domain/access'
 
 interface UsersTableProps {
   users: UserAdmin[]
@@ -65,6 +66,8 @@ function lastActive(iso: string | null): string {
 }
 
 export function UsersTable({ users, pendingRequests = [], loading, onReviewPending }: UsersTableProps) {
+  const navigate = useNavigate()
+
   if (loading) return <SkeletonRows rows={8} height="44px" />
 
   if (users.length === 0 && pendingRequests.length === 0) {
@@ -122,7 +125,19 @@ export function UsersTable({ users, pendingRequests = [], loading, onReviewPendi
             </tr>
           ))}
           {users.map((user) => (
-            <tr key={user.id}>
+            /*
+             * The whole row opens the account, matching the pending rows
+             * above and every other table in the system. The name stays a
+             * real <Link> inside it: the row handler is a convenience for a
+             * mouse, and removing the anchor would take away middle-click,
+             * open-in-new-tab, the status bar preview and the only thing a
+             * keyboard or screen reader can reach.
+             */
+            <tr
+              key={user.id}
+              className="ledger__row--clickable"
+              onClick={() => navigate(`/users/${user.id}`)}
+            >
               <td className="ledger__strong">
                 <Link className="ledger__link" to={`/users/${user.id}`}>
                   {`${user.first_name} ${user.last_name}`.trim() || user.email}
@@ -130,7 +145,7 @@ export function UsersTable({ users, pendingRequests = [], loading, onReviewPendi
               </td>
               <td>{user.email}</td>
               <td>
-                <Badge tone="info">{user.role_display}</Badge>
+                <Badge tone={roleTone(user.role)}>{user.role_display}</Badge>
               </td>
               <td className={siteFor(user).missing ? 'users__site--missing' : undefined}>
                 {siteFor(user).label}

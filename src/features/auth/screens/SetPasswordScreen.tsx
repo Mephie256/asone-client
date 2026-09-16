@@ -22,12 +22,24 @@
  * thing they can reach until the gate clears.
  *
  * ---------------------------------------------------------------------------
- * It asks for the current password
+ * It does not ask for the current password
  * ---------------------------------------------------------------------------
- * `/auth/password/change/` takes both, and that is right even here: the
- * password was handed over in person or by message, so proving they hold it
- * is what makes the new one theirs. It also means somebody who walks up to
- * an unlocked laptop cannot take the account over.
+ * `/auth/password/change/` normally requires it, so that a stolen access
+ * token alone cannot lock the owner out of their own account. This screen is
+ * the one place that reasoning does not hold, and the server makes the field
+ * optional for exactly this state:
+ *
+ *   * The one-time password was typed on the sign-in form seconds ago.
+ *     There is no other way to have got here, so asking again is asking the
+ *     same question twice in a row.
+ *   * The gate blocks every other endpoint, so a session in the wrong hands
+ *     can do one thing — set a password. The field would only stop somebody
+ *     reaching an unlocked screen inside that window.
+ *   * It stops nothing at all with respect to the lead who set the account
+ *     up: they chose the one-time password and could sign in directly.
+ *
+ * So it costs a retype at the moment a new user is least sure of themselves
+ * and buys close to nothing. Two fields: the new password, and it again.
  *
  * The response carries a fresh token pair, which `api/auth.changePassword`
  * stores — the old ones are blacklisted server-side the moment the password
@@ -46,7 +58,6 @@ import { useAuth } from '../hooks/useAuth'
 export function SetPasswordScreen() {
   const { status, user, refresh, retry } = useAuth()
 
-  const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<ApiError | null>(null)
@@ -61,7 +72,7 @@ export function SetPasswordScreen() {
   if (status === 'signedIn') return <Navigate to={paths.dashboard} replace />
 
   const mismatch = confirm !== '' && next !== confirm
-  const ready = current.trim() && next.trim() && next === confirm && !pending
+  const ready = next.trim() && next === confirm && !pending
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -70,7 +81,7 @@ export function SetPasswordScreen() {
     setPending(true)
     setError(null)
     try {
-      await authApi.changePassword({ current_password: current, new_password: next })
+      await authApi.changePassword({ new_password: next })
       // Re-reads the user, which flips `gated` to `signedIn` and lets the
       // redirect above take them in.
       await refresh()
@@ -99,19 +110,10 @@ export function SetPasswordScreen() {
         )}
 
         <PasswordField
-          label="Current password"
-          autoComplete="current-password"
-          required
-          autoFocus
-          value={current}
-          error={error?.fields?.current_password?.[0]}
-          onChange={(event) => setCurrent(event.target.value)}
-        />
-
-        <PasswordField
           label="New password"
           autoComplete="new-password"
           required
+          autoFocus
           value={next}
           error={error?.fields?.new_password?.[0]}
           onChange={(event) => setNext(event.target.value)}

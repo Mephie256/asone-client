@@ -22,7 +22,7 @@ export function TailoringCentersScreen() {
   const pageCount = Math.max(Math.ceil(totalCount / PAGE_SIZE), 1)
 
   return (
-    <AppShell title="Tailoring Centers">
+    <AppShell title="Tailoring Centers" searchHint="center">
       <header className="page-head">
         <h1 className="page-head__title">Tailoring Centers</h1>
         <p className="page-head__subtitle">

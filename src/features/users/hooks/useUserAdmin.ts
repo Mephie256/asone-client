@@ -12,6 +12,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import * as usersApi from '@/api/users'
+import { toApiError } from '@/api/errors'
 import { snackbar } from '@/components'
 import type { UserAdmin } from '@/api/types'
 
@@ -38,6 +39,9 @@ export function useUpdateUser(id: number) {
       invalidate(queryClient, id)
       snackbar.success(`${user.first_name} ${user.last_name} saved`.trim())
     },
+    // Changing your own role is refused for the same lockout reason as
+    // deactivating yourself, so this one needs the message too.
+    onError: (error) => snackbar.error('Could not save the account', toApiError(error).message),
   })
 }
 
@@ -59,6 +63,7 @@ export function useSetPassword(id: number) {
     mutationFn: (newPassword?: string) =>
       usersApi.setPassword(id, newPassword ? { new_password: newPassword } : undefined),
     onSuccess: () => invalidate(queryClient, id),
+    onError: (error) => snackbar.error('Could not set a new password', toApiError(error).message),
   })
 }
 
@@ -77,6 +82,11 @@ export function useSetActive(id: number) {
           : 'They can no longer sign in. Everything they have done is untouched.',
       )
     },
+    // Without this the server's refusal went nowhere and the button looked
+    // dead. The commonest refusal is acting on your own account — a lead who
+    // deactivates themselves needs another lead to undo it — and the server
+    // says exactly that, so show what it said rather than a generic line.
+    onError: (error) => snackbar.error('Could not change the account', toApiError(error).message),
   })
 }
 
@@ -89,10 +99,13 @@ export function useSetActive(id: number) {
 export function useSignOutEverywhere(id: number) {
   return useMutation({
     mutationFn: () => usersApi.signOut(id),
-    onSuccess: () =>
+    onSuccess: ({ sessions_retired: retired }) =>
       snackbar.success(
-        'Signed out everywhere',
-        'Every device is dropped. Their password is unchanged, so they can sign back in.',
+        retired ? 'Signed out everywhere' : 'They were not signed in anywhere',
+        retired
+          ? `${retired} session${retired === 1 ? '' : 's'} dropped. Their password is unchanged, so they can sign back in.`
+          : 'Nothing to drop — there were no open sessions on that account.',
       ),
+    onError: (error) => snackbar.error('Could not sign them out', toApiError(error).message),
   })
 }

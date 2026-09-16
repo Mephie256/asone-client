@@ -141,7 +141,7 @@ export function ReceivingScreen() {
   }
 
   return (
-    <AppShell title="Receiving">
+    <AppShell title="Receiving" searchHint="PO or center">
       {/* Controls and progress are chrome: the signed document is the only
           thing that should reach paper. */}
       <header className="page-head no-print">

@@ -767,9 +767,11 @@
   color: var(--text-muted);
 }
 
-/* The Compass had `color="#64748b"` inline. Icons here take the muted tone
-   like every other icon in the system. */
-.site-card__meta-line svg { color: var(--text-muted); }
+/* The Compass and the Tailoring Centre pin both had `color="#64748b"`
+   inline. Icons here take the muted tone like every other icon in the
+   system, so the colour follows the theme instead of being frozen. */
+.site-card__meta-line svg,
+.tc-card__meta-item svg { color: var(--text-muted); }
 
 .site-card__meta-line {
   display: flex;

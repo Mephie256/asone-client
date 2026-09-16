@@ -106,7 +106,12 @@ export function activate(id: number) {
   return post<UserAdmin>(`/auth/users/${id}/activate/`, {})
 }
 
-/** Drop every one of that account's sessions, without changing the password. */
+/**
+ * Drop every one of that account's sessions, without changing the password.
+ *
+ * Returns how many were retired, which is worth showing: zero means they
+ * were not signed in anywhere, and that is a different answer from "done".
+ */
 export function signOut(id: number) {
-  return post<{ detail: string }>(`/auth/users/${id}/sign-out/`, {})
+  return post<{ sessions_retired: number }>(`/auth/users/${id}/sign-out/`, {})
 }

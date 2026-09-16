@@ -20,7 +20,15 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Plus, Shirt } from 'lucide-react'
-import { Alert, Badge, Button, EmptyState, SkeletonRows, TabBar } from '@/components'
+import {
+  Alert,
+  Badge,
+  Button,
+  EmptyState,
+  Pagination,
+  SkeletonRows,
+  TabBar,
+} from '@/components'
 import { can } from '@/domain/access'
 import { formatUGX } from '@/domain/money'
 import { AppShell } from '@/features/shell/components/AppShell'
@@ -29,10 +37,26 @@ import { useKitComponents, useKits } from '../hooks/useKits'
 
 type Filter = 'all' | 'PS' | 'HS'
 
+/**
+ * Kits per page.
+ *
+ * Deliberately not `LIST_PAGE_SIZE`. These are cards, not table rows, and
+ * each one carries its kit's whole component list — so four of them is
+ * already a screenful where ten rows is not. The grid is two columns, so
+ * four is exactly two rows and a page never ends on a half-filled one.
+ *
+ * Paged here rather than on the server: the level tabs filter the set in
+ * this component, and a server page would have the tabs narrowing one page
+ * of kits instead of all of them. The set is a handful of rows fetched once
+ * and cached hard, which is what makes that affordable.
+ */
+const KITS_PER_PAGE = 4
+
 export function KitsScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [level, setLevel] = useState<Filter>('all')
+  const [page, setPage] = useState(1)
 
   const kits = useKits()
   const components = useKitComponents()
@@ -43,8 +67,14 @@ export function KitsScreen() {
     return level === 'all' ? all : all.filter((kit) => kit.school_level === level)
   }, [kits.data, level])
 
+  const pageCount = Math.max(Math.ceil(rows.length / KITS_PER_PAGE), 1)
+  // Switching tabs can shrink the set under the current page; clamp rather
+  // than show an empty grid and leave someone wondering where the kits went.
+  const safePage = Math.min(page, pageCount)
+  const visible = rows.slice((safePage - 1) * KITS_PER_PAGE, safePage * KITS_PER_PAGE)
+
   return (
-    <AppShell title="Uniform Kits">
+    <AppShell title="Uniform Kits" searchHint="kit">
       <header className="page-head page-head--split">
         <div>
           <h1 className="page-head__title">Uniform Kits</h1>
@@ -69,7 +99,12 @@ export function KitsScreen() {
           { key: 'HS', label: 'High School' },
         ]}
         active={level}
-        onSelect={(key) => setLevel(key as Filter)}
+        onSelect={(key) => {
+          setLevel(key as Filter)
+          // Back to the first page: staying on page two of a tab that now
+          // has one page shows an empty grid and reads as no kits at all.
+          setPage(1)
+        }}
         label="School level"
       />
 
@@ -101,7 +136,7 @@ export function KitsScreen() {
         />
       ) : (
         <div className="kit-grid">
-          {rows.map((kit) => {
+          {visible.map((kit) => {
             const lines = components.byKit.get(kit.id) ?? []
 
             return (
@@ -167,6 +202,25 @@ export function KitsScreen() {
               </article>
             )
           })}
+        </div>
+      )}
+
+      {/*
+        Under the grid, in the same control every list on the system uses.
+        Shown whenever there are kits at all: the position line says how many
+        there are even on a single page, and "4 of 4" is worth saying on a
+        screen whose whole content is four cards.
+      */}
+      {!kits.isLoading && rows.length > 0 && (
+        <div className="table-card__footer">
+          <Pagination
+            page={safePage}
+            pageCount={pageCount}
+            totalItems={rows.length}
+            pageSize={KITS_PER_PAGE}
+            onChange={setPage}
+            noun="kits"
+          />
         </div>
       )}
     </AppShell>

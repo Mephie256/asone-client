@@ -34,10 +34,12 @@
  */
 
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useAuth } from '@/features/auth/hooks/useAuth'
+import { Link, useParams } from 'react-router-dom'
 import { ChevronRight, KeyRound, LogOut } from 'lucide-react'
 import {
   Alert,
+  Avatar,
   Badge,
   Button,
   ConfirmButton,
@@ -48,7 +50,8 @@ import {
   TextField,
 } from '@/components'
 import { toApiError } from '@/api/errors'
-import { formatDay } from '@/domain/dates'
+import { fullName, initials, roleTone } from '@/domain/access'
+import { formatDateTime, formatDay } from '@/domain/dates'
 import { AppShell } from '@/features/shell/components/AppShell'
 import { useRoles } from '../hooks/useRoles'
 import {
@@ -63,15 +66,29 @@ import { useQuery } from '@tanstack/react-query'
 import * as catalogApi from '@/api/catalog'
 import type { RoleInfo, UserAdmin } from '@/api/types'
 
+/**
+ * Dates a person chose — the day an account was created.
+ */
 function when(iso: string | null | undefined): string {
   if (!iso) return 'Never'
   return formatDay(iso.slice(0, 10))
 }
 
+/**
+ * Moments something happened, with the time.
+ *
+ * `when()` sliced the first ten characters off and dropped the clock, so
+ * "Last signed in 16 Sep" could not tell a lead whether that was this
+ * morning or an hour ago. On a shared warehouse machine that is exactly
+ * the question being asked.
+ */
+function at(iso: string | null | undefined): string {
+  return formatDateTime(iso)
+}
+
 export function UserProfileScreen() {
   const { userId } = useParams()
   const id = Number(userId)
-  const navigate = useNavigate()
 
   const user = useUser(id)
   const rolesQuery = useRoles()
@@ -79,6 +96,13 @@ export function UserProfileScreen() {
   const setPassword = useSetPassword(id)
   const setActive = useSetActive(id)
   const signOut = useSignOutEverywhere(id)
+
+  // Two of these behave differently on your own account and the difference is
+  // not guessable: the server refuses a self-deactivation outright (a lead who
+  // locks themselves out needs another lead to undo it), while "sign out
+  // everywhere" succeeds and drops the session you are reading this in.
+  const { user: signedIn } = useAuth()
+  const isSelf = signedIn?.id === id
 
   const [editing, setEditing] = useState(false)
   const [issued, setIssued] = useState<string | null>(null)
@@ -99,7 +123,7 @@ export function UserProfileScreen() {
   }
 
   const person = user.data
-  const name = `${person.first_name} ${person.last_name}`.trim() || person.email
+  const name = fullName(person)
   const site = person.warehouse_name || person.school_name
   const needsSite = person.role === 'WAREHOUSE_STAFF' || person.role === 'SCHOOL_STAFF'
 
@@ -111,15 +135,41 @@ export function UserProfileScreen() {
         <span aria-current="page">{name}</span>
       </nav>
 
-      <header className="page-head page-head--split">
-        <div>
-          <div className="kit-hero__title">
-            <h1 className="page-head__title">{name}</h1>
-            <Badge tone={person.is_active ? 'success' : 'neutral'}>
+      {/*
+        A face before the facts. Every other place a person appears in this
+        system draws them with an `Avatar` — the sidebar, the users table —
+        and a screen about one person was the only one that did not, which
+        made it read as a record rather than somebody.
+
+        Role and site sit up here rather than only in the table below,
+        because they are the two things a lead came to check.
+      */}
+      <header className="profile-hero">
+        <Avatar initials={initials(person)} size={64} />
+
+        <div className="profile-hero__identity">
+          <div className="profile-hero__name">
+            <h1 className="profile-hero__title">{name}</h1>
+            {/* Red, not grey. A deactivated account cannot sign in, which is
+                a state somebody is looking for when they open this screen —
+                grey read as "nothing to see here". */}
+            <Badge tone={person.is_active ? 'success' : 'error'}>
               {person.is_active ? 'ACTIVE' : 'INACTIVE'}
             </Badge>
           </div>
-          <p className="page-head__subtitle">{person.email}</p>
+
+          <p className="profile-hero__email">{person.email}</p>
+
+          <div className="profile-hero__tags">
+            <Badge tone={roleTone(person.role)}>{person.role_display}</Badge>
+            <span
+              className={`profile-hero__site${
+                needsSite && !site ? ' users__site--missing' : ''
+              }`}
+            >
+              {site ?? (needsSite ? 'No site assigned' : 'All sites')}
+            </span>
+          </div>
         </div>
 
         <Button variant="secondary" onClick={() => setEditing(true)}>
@@ -147,42 +197,39 @@ export function UserProfileScreen() {
         </Alert>
       )}
 
-      <Panel title="Account" subtitle="What this person is, and what they may reach.">
-        <dl className="detail-list">
-          <div>
-            <dt>Role</dt>
-            <dd>
-              <Badge tone="info">{person.role_display}</Badge>
-            </dd>
-          </div>
-          <div>
-            <dt>Assigned site</dt>
-            <dd className={needsSite && !site ? 'users__site--missing' : undefined}>
-              {site ?? (needsSite ? 'No site assigned' : 'All sites')}
-            </dd>
-          </div>
-          <div>
-            <dt>Phone</dt>
-            <dd>{person.phone_number || '—'}</dd>
-          </div>
-          <div>
-            <dt>Last signed in</dt>
-            <dd>{when(person.last_login)}</dd>
-          </div>
-          <div>
-            <dt>Account created</dt>
-            <dd>{when(person.date_joined)}</dd>
-          </div>
-          <div>
-            <dt>Password</dt>
-            <dd>
-              {person.must_change_password
-                ? 'Must be changed at next sign-in'
-                : 'Set by them'}
-            </dd>
-          </div>
-        </dl>
-      </Panel>
+      {/*
+        Side by side, so the page uses the width it has. It was one column of
+        full-width cards with the actions as a row of buttons under a mostly
+        empty details panel.
+
+        Role and site are not repeated here — they are in the hero above,
+        which is where a lead looks for them.
+      */}
+      <div className="profile-columns">
+        <Panel title="Account" subtitle="What this person is, and what they may reach.">
+          <dl className="detail-list detail-list--profile">
+            <div>
+              <dt>Phone</dt>
+              <dd>{person.phone_number || '—'}</dd>
+            </div>
+            <div>
+              <dt>Password</dt>
+              <dd>
+                {person.must_change_password
+                  ? 'Must be changed at next sign-in'
+                  : 'Set by them'}
+              </dd>
+            </div>
+            <div>
+              <dt>Last signed in</dt>
+              <dd>{at(person.last_login)}</dd>
+            </div>
+            <div>
+              <dt>Account created</dt>
+              <dd>{when(person.date_joined)}</dd>
+            </div>
+          </dl>
+        </Panel>
 
       {/*
         The password they were handed, shown once. Kept on the page rather
@@ -234,7 +281,11 @@ export function UserProfileScreen() {
             title={`Sign ${name} out everywhere`}
             pendingLabel="Signing out…"
             pending={signOut.isPending}
-            note="Drops every device they are signed in on. Their password is unchanged, so they can sign straight back in — use this for a machine left open, not for an account you no longer trust."
+            note={
+              isSelf
+                ? 'This is your own account, so this signs you out too — including this tab. Your password is unchanged and you can sign straight back in.'
+                : 'Drops every device they are signed in on. Their password is unchanged, so they can sign straight back in — use this for a machine left open, not for an account you no longer trust.'
+            }
             onConfirm={() => signOut.mutate()}
           >
             <LogOut size={16} aria-hidden />
@@ -257,6 +308,7 @@ export function UserProfileScreen() {
           </ConfirmButton>
         </div>
       </Panel>
+      </div>
 
       {editing && (
         <EditDetails
@@ -270,17 +322,6 @@ export function UserProfileScreen() {
           }
         />
       )}
-
-      <div className="compose__bar">
-        <div className="compose__summary">
-          <p className="compose__count">{person.email}</p>
-        </div>
-        <div className="compose__actions">
-          <Button variant="secondary" onClick={() => navigate('/users')}>
-            Back to users
-          </Button>
-        </div>
-      </div>
     </AppShell>
   )
 }

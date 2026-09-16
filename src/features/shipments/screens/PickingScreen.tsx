@@ -97,7 +97,7 @@ export function PickingScreen() {
   const total = queue.data?.orders.count ?? 0
 
   return (
-    <AppShell title="Shipping">
+    <AppShell title="Shipping" searchHint="order or school">
       <header className="page-head">
         <h1 className="page-head__title">Shipping</h1>
         <p className="page-head__subtitle">

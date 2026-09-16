@@ -4478,9 +4478,27 @@ export interface components {
          *     The current password is required even though the request is already
          *     authenticated. A stolen access token is then not enough to lock the real
          *     owner out of their own account.
+         *
+         *     **Except on the first-time gate.** An account with `must_change_password`
+         *     set may omit it, because there the field defends nothing and costs a
+         *     retype at the moment a new user is least sure of themselves:
+         *
+         *       * They typed that exact password on the sign-in screen seconds ago.
+         *         There is no other way to have reached this request.
+         *       * While the flag is set the server refuses every other endpoint, so a
+         *         session in the wrong hands can do precisely one thing — set a
+         *         password. The only attack the field stops is somebody reaching an
+         *         unlocked screen inside that window.
+         *       * It stops nothing at all with respect to the lead who created the
+         *         account: they chose the one-time password and could sign in as that
+         *         person directly.
+         *
+         *     Sending it anyway is still honoured and still checked, so a client that
+         *     has the password loses nothing by passing it.
          */
         PasswordChange: {
-            current_password: string;
+            /** @description Required unless the account is on the first-time password gate (`must_change_password`), where it may be omitted. */
+            current_password?: string;
             new_password: string;
         };
         PatchedGarment: {

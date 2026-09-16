@@ -52,11 +52,31 @@ interface LineChartProps {
   label: string
 }
 
-/** Reads a CSS custom property off the document, with a fallback. */
-function token(name: string, fallback: string): string {
-  if (typeof document === 'undefined') return fallback
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name)
-  return value.trim() || fallback
+/**
+ * Reads a CSS custom property off the document.
+ *
+ * ApexCharts writes its colours as SVG `fill` and `stroke` **attributes**,
+ * and a custom property does not resolve in an attribute — so unlike every
+ * other colour in this app these have to be read as values rather than
+ * referred to. This is the one place that is true.
+ *
+ * It used to take a hardcoded hex fallback per token, which put nine brand
+ * colours in this file duplicating tokens.css with nothing keeping them in
+ * step. They were also unreachable: tokens.css is imported by `main.tsx` and
+ * this component is lazy-loaded long after, so the property is always there.
+ *
+ * If one ever is not, that is a missing token — a bug worth seeing rather
+ * than papering over with a stale copy of what it used to be.
+ */
+function token(name: string): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+
+  if (!value && import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.warn(`LineChart: ${name} is not defined in tokens.css`)
+  }
+
+  return value
 }
 
 export function LineChart({
@@ -90,10 +110,10 @@ export function LineChart({
   const axisLabels = categories.map((label, index) => (index % stride === 0 ? label : ''))
 
   const options = useMemo(() => {
-    const accent = token('--accent', '#5e8e8e')
-    const ink = token('--text-secondary', '#4b5563')
-    const muted = token('--text-muted', '#667283')
-    const rule = token('--table-rule', '#e6e0e9')
+    const accent = token('--accent')
+    const ink = token('--text-secondary')
+    const muted = token('--text-muted')
+    const rule = token('--table-rule')
 
     /*
       A brand-led ramp rather than ApexCharts' defaults. The first series is
@@ -104,10 +124,10 @@ export function LineChart({
     */
     const palette = [
       accent,
-      token('--asone-ocean', '#2b4f66'),
-      token('--asone-earth', '#603838'),
-      token('--warning', '#d97706'),
-      token('--info', '#2563eb'),
+      token('--asone-ocean'),
+      token('--asone-earth'),
+      token('--warning'),
+      token('--info'),
     ]
 
     return {
@@ -183,7 +203,7 @@ export function LineChart({
       markers: {
         size: 4,
         strokeWidth: 2,
-        strokeColors: token('--surface', '#ffffff'),
+        strokeColors: token('--surface'),
         hover: { size: 7 },
       },
       dataLabels: { enabled: false },

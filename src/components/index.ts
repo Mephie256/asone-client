@@ -9,7 +9,7 @@
 export { Alert } from './Alert'
 export { AnimatedNumber } from './AnimatedNumber'
 export { Avatar } from './Avatar'
-export { Badge, type Tone } from './Badge'
+export { Badge, type IdentityTone, type Tone } from './Badge'
 export { BrandMark } from './BrandMark'
 export { Button } from './Button'
 export { ConfirmButton } from './ConfirmButton'
