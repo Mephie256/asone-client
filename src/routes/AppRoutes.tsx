@@ -24,6 +24,8 @@ import { SnackbarProvider } from '@/components'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { NavGroupsProvider } from '@/features/shell/NavGroupsProvider'
 import { WarehouseFilterProvider } from '@/features/shell/WarehouseFilterProvider'
+import { CreateAccountScreen } from '@/features/auth/screens/CreateAccountScreen'
+import { SetPasswordScreen } from '@/features/auth/screens/SetPasswordScreen'
 import { SignInScreen } from '@/features/auth/screens/SignInScreen'
 import { WelcomeScreen } from '@/features/auth/screens/WelcomeScreen'
 import { HomeScreen } from '@/features/dashboard/screens/HomeScreen'
@@ -31,8 +33,14 @@ import { ReportsIndexScreen } from '@/features/reports/screens/ReportsIndexScree
 import { StockReportScreen } from '@/features/reports/screens/StockReportScreen'
 import { OrderDetailScreen } from '@/features/orders/screens/OrderDetailScreen'
 import { OrdersListScreen } from '@/features/orders/screens/OrdersListScreen'
+import { UsersRolesScreen } from '@/features/users/screens/UsersRolesScreen'
 import { CreateProductionOrderScreen } from '@/features/production/screens/CreateProductionOrderScreen'
 import { ProductionOrderDetailScreen } from '@/features/production/screens/ProductionOrderDetailScreen'
+import { UserProfileScreen } from '@/features/users/screens/UserProfileScreen'
+import { CreateKitScreen } from '@/features/kits/screens/CreateKitScreen'
+import { EditKitScreen } from '@/features/kits/screens/EditKitScreen'
+import { KitDetailScreen } from '@/features/kits/screens/KitDetailScreen'
+import { KitsScreen } from '@/features/kits/screens/KitsScreen'
 import { AdjustmentsScreen } from '@/features/adjustments/screens/AdjustmentsScreen'
 import { NewAdjustmentScreen } from '@/features/adjustments/screens/NewAdjustmentScreen'
 import { NewTransferScreen } from '@/features/adjustments/screens/NewTransferScreen'
@@ -43,7 +51,11 @@ import { ReceivingScreen } from '@/features/receiving/screens/ReceivingScreen'
 import { ShipmentDetailScreen } from '@/features/shipments/screens/ShipmentDetailScreen'
 import { PickingScreen } from '@/features/shipments/screens/PickingScreen'
 import { ShipmentsScreen } from '@/features/shipments/screens/ShipmentsScreen'
-import { canMoveStockBetweenWarehouses, canReadSchoolOrders } from '@/domain/access'
+import {
+  canMoveStockBetweenWarehouses,
+  canReadKits,
+  canReadSchoolOrders,
+} from '@/domain/access'
 import { InventoryScreen } from '@/features/inventory/screens/InventoryScreen'
 import { SchoolDetailScreen } from '@/features/catalog/screens/SchoolDetailScreen'
 import { SchoolsScreen } from '@/features/catalog/screens/SchoolsScreen'
@@ -73,7 +85,9 @@ const SCREENS: Record<string, ComponentType> = {
   '/receiving': ReceivingScreen,
   '/production-orders': ProductionOrdersScreen,
   '/backorders': BackordersScreen,
+  '/users': UsersRolesScreen,
   '/adjustments': AdjustmentsScreen,
+  '/kits': KitsScreen,
   // The landing view is the picking backlog; despatched shipments are the
   // history behind it.
   '/shipments': PickingScreen,
@@ -96,6 +110,11 @@ export function AppRoutes() {
               <Routes>
           <Route path={paths.welcome} element={<WelcomeScreen />} />
           <Route path={paths.signIn} element={<SignInScreen />} />
+          {/* Outside RequireAuth's guard: a gated user is redirected here by
+              it, so guarding this route with it would be a loop. The screen
+              checks the session itself. */}
+          <Route path={paths.setPassword} element={<SetPasswordScreen />} />
+          <Route path={paths.createAccount} element={<CreateAccountScreen />} />
 
           {/*
             Detail screens that hang off a nav destination rather than being
@@ -145,6 +164,59 @@ export function AppRoutes() {
             as Finance, where the adjustment screens are Finance alone. Gating
             them together would deny the leads a feature the matrix grants.
           */}
+          {/*
+            Before the generated /kits route, so "new" is not parsed as a kit
+            id. Both are gated on `table_updates`, wider than the read gate on
+            the list: a school clerk reads kits to order from them and never
+            builds one.
+          */}
+          <Route
+            path="/kits/new"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="table_updates">
+                  <CreateKitScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          {/* Managing an account is the Table Updates column, same as the
+              list it is reached from. */}
+          <Route
+            path="/users/:userId"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="table_updates">
+                  <UserProfileScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          {/* Before /kits/:kitId, or "3/edit" never matches. */}
+          <Route
+            path="/kits/:kitId/edit"
+            element={
+              <RequireAuth>
+                <RequireAccess requires="table_updates">
+                  <EditKitScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/kits/:kitId"
+            element={
+              <RequireAuth>
+                <RequireAccess requires={canReadKits}>
+                  <KitDetailScreen />
+                </RequireAccess>
+              </RequireAuth>
+            }
+          />
+
           <Route
             path="/adjustments/transfers/new"
             element={

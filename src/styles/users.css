@@ -1,0 +1,471 @@
+/**
+ * Users & Roles — Figma "15 - Users & Roles".
+ *
+ * Its own file, like locations.css and receiving.css, rather than additions
+ * spread through components.css: this screen's classes belong to one feature
+ * and nothing else reads them.
+ *
+ * Every value reads from tokens.css.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Registration — the agree-to-terms row on Create Account
+ *
+ * Lives here rather than components.css for the same reason as everything
+ * else in this file: it belongs to one flow and nothing else reads it.
+ * ------------------------------------------------------------------------ */
+
+.signin__agree {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+  /* Sits tight under the field above it rather than a full gap below. */
+  margin-top: calc(var(--space-4) * -1);
+}
+
+.signin__agree input[type='checkbox'] {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+
+.signin__agree a {
+  font-weight: var(--weight-bold);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.signin__agree a:hover { text-decoration: underline; }
+
+/* ---------------------------------------------------------------------------
+ * Toolbar — the tabs and the one action share a row
+ * ------------------------------------------------------------------------ */
+
+.users__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+
+.users__toolbar .tabbar { margin-top: 0; }
+
+/* The matrix is a second card below the table, so it needs the gap the
+   table card takes from the toolbar. `.panel` carries no margin of its own. */
+.users__matrix { margin-top: var(--space-4); }
+
+/* Title and subtitle read as one heading block. */
+.panel__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+}
+
+.panel__head--stacked { align-items: flex-start; }
+
+/* ---------------------------------------------------------------------------
+ * Role chip — the Role column
+ *
+ * The neutral surface, not a badge tone: a role is who somebody is, not a
+ * status, and colouring it would compete with the Status column beside it.
+ * ------------------------------------------------------------------------ */
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-container);
+  color: var(--text-primary);
+  font-size: var(--text-overline);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Status dot — active / inactive
+ * ------------------------------------------------------------------------ */
+
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.status-dot__mark {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.status-dot--active .status-dot__mark { background: var(--success); }
+
+/* Red rather than grey, and the word with it. An account that cannot sign in
+   is the row somebody is scanning for; in grey it read as an empty value. */
+.status-dot--inactive .status-dot__mark { background: var(--error); }
+.status-dot--inactive { color: var(--error); }
+
+/* ---------------------------------------------------------------------------
+ * Permissions matrix
+ * ------------------------------------------------------------------------ */
+
+.ledger--matrix th:not(:first-child),
+.ledger--matrix td:not(:first-child) {
+  text-align: center;
+}
+
+.matrix__cell { display: table-cell; }
+.matrix__yes { color: var(--success); }
+.matrix__no { color: var(--error); }
+
+/* Marks a row with no server column behind it — see domain/permissionsMatrix. */
+.matrix__approx {
+  margin-left: var(--space-1);
+  color: var(--warning);
+  cursor: help;
+}
+
+/* ---------------------------------------------------------------------------
+ * Add User wizard
+ *
+ * The dialog shell itself is `components/Modal.tsx` now — a native
+ * `<dialog>`, with the focus trap, the inert background and the top layer
+ * that come with it. What is left here is only what is particular to this
+ * wizard: the step bars, the two-up name row, and the review list.
+ *
+ * Every name is prefixed `wizard__`. The previous version defined `.modal`,
+ * `.modal__head`, `.modal__title`, `.modal__close` and `.modal__body`, and
+ * because `users.css` loads last in `base.css` those quietly beat
+ * `components.css` on **every** page — every other dialog in the app lost
+ * its border, shadow and layout, not just this one. Renaming the five that
+ * collided fixed the symptom; prefixing all of them removes the trap for
+ * whoever adds a `.modal__step` to the shared file later.
+ * ------------------------------------------------------------------------ */
+
+/* Two bars, because there are two steps before the outcome. They were three
+   for a "Step 1 of 3" whose middle step nothing in the design distinguishes
+   from the review. */
+.wizard__progress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wizard__progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-dim);
+  border-radius: var(--radius-pill);
+}
+
+.wizard__progress-bar--done { background: var(--accent); }
+
+/* First and last name read as one field split in two. */
+.wizard__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+@media (max-width: 560px) {
+  .wizard__grid { grid-template-columns: 1fr; }
+}
+
+/* What the chosen role can do, before the role is committed to. */
+.wizard__preview {
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.wizard__preview-title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wizard__preview-summary {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* The review, and the one-time password, share this list. */
+.wizard__review {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-lg);
+}
+
+.wizard__review dt {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-small);
+  font-weight: var(--weight-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wizard__review dd {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.wizard__review-value--accent {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+
+/* A password is read character by character, so it is set in the mono face
+   where a 1 and an l are not the same shape. */
+.wizard__review-value--mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-h3);
+  letter-spacing: 0.06em;
+}
+
+/* ---------------------------------------------------------------------------
+ * Stacked field — label above a compact input
+ *
+ * Not `TextField`, which notches its label into a 56px frame. That suits the
+ * auth screens it was drawn for; this dialog asks for six things at once, and
+ * the design gives them a small label over a 40px input so the whole form
+ * fits without scrolling.
+ * ------------------------------------------------------------------------ */
+
+/* The dropdown arrow for `Select`, which otherwise borrows the text field's
+   frame wholesale. Here rather than components.css because `Select` exists
+   for this dialog's role and site pickers. */
+/* ---------------------------------------------------------------------------
+ * Role permissions preview — read-only ticks inside Add User
+ * ------------------------------------------------------------------------ */
+
+/* The neutral surface, not the accent halo: this panel reports what a role
+   already holds, so tinting it brand teal read as an action. */
+/* The prose form of the preview: a sentence about the role rather than the
+   tick list. Both shapes exist because the design shows ticks and the server
+   supplies a summary; whichever the modal renders has a rule here. */
+/* ---------------------------------------------------------------------------
+ * Review step
+ * ------------------------------------------------------------------------ */
+
+/* Role and site sit side by side: together they are one fact — what this
+   person may do, and where. */
+/* ---------------------------------------------------------------------------
+ * Password handoff — the last step
+ *
+ * The one moment the generated password exists anywhere a person can read
+ * it. The server returns it on the create response and never again, so this
+ * screen is deliberately loud: a lead who closes it without copying has
+ * locked the new user out until somebody sets a fresh one.
+ * ------------------------------------------------------------------------ */
+
+/* Large, monospaced and selectable: the lead reads this onto another
+   channel by hand, and a mistyped character cannot be recovered. */
+/* ---------------------------------------------------------------------------
+ * Needs Attention — clickable rows
+ *
+ * Added here rather than dashboard.css: that file is Bash's, this one only
+ * carries what this feature needed on top of it.
+ * ------------------------------------------------------------------------ */
+
+.attention__item--clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.attention__item--clickable:hover,
+.attention__item--clickable:focus-visible {
+  background: var(--accent-subtle-hover, var(--surface-sunken));
+}
+
+.attention__item--clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bell__item--clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.bell__item--clickable:hover,
+.bell__item--clickable:focus-visible {
+  background: var(--accent-subtle-hover, var(--surface-sunken));
+}
+
+.bell__item--clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Roles
+ *
+ * The Roles tab used to render the permissions matrix, the same view the
+ * Permissions tab showed — two tabs, one thing, and clicking between them
+ * did nothing. This answers the other question: who the five roles are and
+ * what each is for. The grid of ticks stayed where it belongs.
+ * ------------------------------------------------------------------------ */
+
+.role-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.role-list__item {
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.role-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.role-list__name {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.role-list__summary {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+ * A site that is missing rather than absent
+ *
+ * A warehouse or school account with no site sees nothing and can do nothing
+ * — every request it makes is scoped to a site it does not have. The table
+ * used to print "All Sites" for it, the same phrase a Program Lead gets,
+ * where for a lead that is the truth and here it is a broken account.
+ * ------------------------------------------------------------------------ */
+
+.users__site--missing {
+  color: var(--error);
+  font-weight: var(--weight-bold);
+}
+
+/* The three account actions, wrapping rather than squeezing on a phone. */
+/* ---------------------------------------------------------------------------
+ * One person's profile
+ * ------------------------------------------------------------------------ */
+
+/* Avatar, identity, and the one control that changes any of it. */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* Takes the slack, so the button sits hard right however long a name is. */
+.profile-hero__identity {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.profile-hero__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.profile-hero__title {
+  margin: 0;
+  font-size: var(--text-h1);
+  color: var(--accent);
+  /* A long unbroken address or name breaks rather than widening the card. */
+  overflow-wrap: anywhere;
+}
+
+.profile-hero__email {
+  margin: var(--space-1) 0 0;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.profile-hero__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+
+/* Quieter than the role badge beside it: the role is what this person *is*,
+   the site is where. Two badges of equal weight read as two roles. */
+.profile-hero__site {
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+/* The facts beside the actions. Collapses to one column on a narrow screen,
+   where side by side leaves neither wide enough to read. */
+.profile-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .profile-columns { grid-template-columns: minmax(0, 1fr); }
+  .profile-hero { flex-wrap: wrap; }
+}
+
+/* Two columns rather than the shared `auto-fit`, which at this panel's width
+   fitted five across and left the last field orphaned on a row of its own. */
+.detail-list--profile {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/*
+ * Stacked, full width, in the order they are wanted.
+ *
+ * They were a wrapping row, which at this column's width put two buttons on
+ * one line and the destructive one alone underneath — an accident of
+ * wrapping that read as a grouping it did not mean.
+ */
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.user-actions > * { width: 100%; }

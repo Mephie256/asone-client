@@ -29,7 +29,7 @@ export function Sidebar({ user, onSignOut }: SidebarProps) {
   const { isOpen, toggle } = useNavGroups()
 
   return (
-    <nav className="sidebar" aria-label="Main">
+    <nav className="sidebar" id="app-nav" aria-label="Main">
       <div className="sidebar__brand">
         {/* The compact mark, 33×32 as designed — a different asset from the
             158×70 lockup used on the auth screens. */}

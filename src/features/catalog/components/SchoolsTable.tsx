@@ -20,9 +20,10 @@ import { useNavigate } from 'react-router-dom'
 import { Badge, EmptyState, Pagination } from '@/components'
 import { paths } from '@/routes/paths'
 import type { School } from '@/api/types'
+import { LIST_PAGE_SIZE } from '@/api/pageSize'
 
 /** DRF's fixed page size — see API_ENDPOINTS.md. */
-const PAGE_SIZE = 50
+const PAGE_SIZE = LIST_PAGE_SIZE
 
 interface SchoolsTableProps {
   schools: School[]

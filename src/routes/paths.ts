@@ -12,6 +12,9 @@
 export const paths = {
   welcome: '/',
   signIn: '/sign-in',
+  /* The password gate. Every account starts behind it. */
+  setPassword: '/set-password',
+  createAccount: '/create-account',
   dashboard: '/dashboard',
   schools: '/schools',
   schoolDetail: (id: number | string) => `/schools/${id}`,
@@ -21,4 +24,8 @@ export const paths = {
   inventory: '/inventory',
   orders: '/orders',
   productionOrders: '/production-orders',
+  stockReport: '/reports/inventory',
+  receiving: '/receiving',
+  backorders: '/backorders',
+  users: '/users',
 } as const

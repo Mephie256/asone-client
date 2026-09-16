@@ -10,9 +10,10 @@ import { AppShell } from '@/features/shell/components/AppShell'
 import { Pagination } from '@/components'
 import { TailoringCenterCard } from '../components/TailoringCenterCard'
 import { useTailoringCenters, type TailoringCenterFilters } from '../hooks/useTailoringCenters'
+import { LIST_PAGE_SIZE } from '@/api/pageSize'
 
 const EMPTY_FILTERS: TailoringCenterFilters = { page: 1 }
-const PAGE_SIZE = 50
+const PAGE_SIZE = LIST_PAGE_SIZE
 
 export function TailoringCentersScreen() {
   const [filters, setFilters] = useState<TailoringCenterFilters>(EMPTY_FILTERS)
@@ -21,7 +22,7 @@ export function TailoringCentersScreen() {
   const pageCount = Math.max(Math.ceil(totalCount / PAGE_SIZE), 1)
 
   return (
-    <AppShell title="Tailoring Centers">
+    <AppShell title="Tailoring Centers" searchHint="center">
       <header className="page-head">
         <h1 className="page-head__title">Tailoring Centers</h1>
         <p className="page-head__subtitle">

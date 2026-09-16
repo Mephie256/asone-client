@@ -64,6 +64,47 @@
   --info-bg: #dbeafe;          /* Draft states */
 
   /* ---------------------------------------------------------------------
+   * Identity colours
+   *
+   * For telling one thing from another where neither is better than the
+   * other — the five roles, today. Deliberately kept apart from the
+   * semantic colours above: green means confirmed and red means wrong, so
+   * a role wearing either would read as a judgement on the person. These
+   * carry no meaning beyond "not that one".
+   *
+   * `--violet` is the pair `.badge--purple` already used as raw hex.
+   * ------------------------------------------------------------------ */
+
+  --violet: #9333ea;
+  --violet-bg: #f3e8ff;
+  --teal: #0d9488;
+  --teal-bg: #ccfbf1;
+  --amber: #b45309;
+  --amber-bg: #fef3c7;
+  --rose: #be185d;
+  --rose-bg: #fce7f3;
+
+  /* Text on `--warning-bg`. `--warning` itself is only 3.1:1 against it,
+     under the 4.5:1 body-text floor; this is the darker amber that passes. */
+  --warning-ink: #92400e;
+
+  /* The pale stop the weekly-report card fades to, under `--asone-green`. */
+  --asone-green-glow: #d0fffb;
+
+  /* ---------------------------------------------------------------------
+   * Paper
+   *
+   * A packing slip and a pick list are printed and read off the page, so
+   * these are deliberately literal rather than theme-following: paper is
+   * white and toner is black whatever the screen is set to.
+   * ------------------------------------------------------------------ */
+
+  --print-paper: #ffffff;
+  --print-ink: #000000;
+  --print-rule: #999999;
+  --print-rule-faint: #cccccc;
+
+  /* ---------------------------------------------------------------------
    * Semantic surfaces and text — APPROVED, from the screen designs
    *
    * What components actually consume. Where the screens and
@@ -163,6 +204,10 @@
   --overlay-brand: rgba(94, 142, 142, 0.9);
   --on-overlay: #ffffff;
   --on-overlay-dim: rgba(255, 255, 255, 0.5);
+
+  /* What dims the page behind something modal — a dialog's ::backdrop and
+     the navigation drawer's scrim. One value, so the two do not drift. */
+  --scrim: rgba(33, 35, 43, 0.45);
 
   /* ---------------------------------------------------------------------
    * 02 / Typography

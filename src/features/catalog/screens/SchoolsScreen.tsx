@@ -38,7 +38,7 @@ export function SchoolsScreen() {
   }
 
   return (
-    <AppShell title="Schools">
+    <AppShell title="Schools" searchHint="school">
       <header className="page-head">
         <h1 className="page-head__title">Schools</h1>
         <p className="page-head__subtitle">

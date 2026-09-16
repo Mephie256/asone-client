@@ -50,7 +50,7 @@ import {
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react'
-import { Alert, Button, LoadingScreen, SkuPicker } from '@/components'
+import { Alert, Button, LoadingScreen } from '@/components'
 import { toApiError } from '@/api/errors'
 import { formatDay, todayISO } from '@/domain/dates'
 import {
@@ -382,13 +382,35 @@ export function NewAdjustmentScreen() {
         <div className="field-row">
           <div className="field field--stacked">
             <label htmlFor="adj-sku">SKU (Select Uniform Item)</label>
-            <SkuPicker
+            {/*
+              A plain select, like the warehouse beside it and every other
+              picker in the app.
+
+              This was briefly an `<input list>` with a `<datalist>`, so the
+              code could be typed. The browser draws that list itself and
+              will not take our styling: Chrome sets the option's *value* —
+              the bare code — in large text and the description under it in
+              grey, which looks nothing like the rest of the system. A
+              control we cannot style is not worth the typing.
+
+              Native selects still jump to an option as you type its opening
+              characters, so the code is reachable from the keyboard.
+            */}
+            <select
               id="adj-sku"
-              label="Uniform item"
-              skus={skus}
-              value={skuId}
-              onChange={setSkuId}
-            />
+              className="input"
+              value={skuId ?? ''}
+              onChange={(event) =>
+                setSkuId(event.target.value ? Number(event.target.value) : null)
+              }
+            >
+              <option value="">Choose a uniform item…</option>
+              {skus.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.number} — {entry.garment_name} size {entry.size_name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="field field--stacked">

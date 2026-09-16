@@ -18,12 +18,14 @@
 import { get, patch, post } from './http'
 import { tokens } from './tokens'
 import type {
+  AccountRequest,
   Credentials,
   CurrentUser,
   EmailVerification,
   LoginAttempt,
   LoginChallenge,
   Page,
+  RegistrationRequest,
   RoleInfo,
   Session,
   VerifyLoginCode,
@@ -73,6 +75,33 @@ export function verifyEmail(input: EmailVerification): Promise<{ detail: string 
 }
 
 /**
+ * "Get Started Onboarding" — ask for an account.
+ *
+ * Open: there is no account yet to authenticate as. Immediately emails a
+ * confirmation code — call `confirmRegistration` with it next. Creates
+ * nothing more than a pending request; nothing here can be signed into. A
+ * Program Lead or Operations Manager reviews it once the address is
+ * confirmed, and either approves it (which creates the account and emails
+ * a *second*, separate code — the same as `POST /auth/users/` does today)
+ * or declines it.
+ */
+export function requestAccount(input: AccountRequest): Promise<RegistrationRequest> {
+  return post<RegistrationRequest>('/auth/register/', input)
+}
+
+/**
+ * Confirm the code sent the moment `requestAccount` was submitted.
+ *
+ * Does not create an account and does not sign anyone in — it unlocks the
+ * request for a lead to review. Expired, already used and too-many-attempts
+ * all come back as the same 400, deliberately not saying which — so the
+ * screen must offer "start again" rather than "try another code".
+ */
+export function confirmRegistration(input: EmailVerification): Promise<{ detail: string }> {
+  return post<{ detail: string }>('/auth/register/verify/', input)
+}
+
+/**
  * Sign out. Blacklists the refresh token; the access token stays valid until
  * it expires, which is inherent to stateless tokens and why they are short.
  *
@@ -119,9 +148,14 @@ export function updateMe(body: {
  * Requires the current password even though you are signed in, so a stolen
  * token alone cannot lock the owner out. Signs out every other session and
  * returns a fresh token pair, stored here for the same reason as sign-in.
+ *
+ * The one exception is the first-time gate, where the server accepts it
+ * without a current password — there the account has just signed in with the
+ * one-time password to reach this at all, and can do nothing else until it
+ * changes. See `SetPasswordScreen`.
  */
 export async function changePassword(input: {
-  current_password: string
+  current_password?: string
   new_password: string
 }): Promise<void> {
   const next = await post<Partial<Session>>('/auth/password/change/', input)

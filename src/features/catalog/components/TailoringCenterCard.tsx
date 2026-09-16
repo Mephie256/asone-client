@@ -59,7 +59,7 @@ export function TailoringCenterCard({ center }: TailoringCenterCardProps) {
           {center.address && (
             <div className="tc-card__meta">
               <span className="tc-card__meta-item">
-                <MapPin size={14} color="#64748b" aria-hidden />
+                <MapPin size={14} aria-hidden />
                 {center.address}
               </span>
             </div>

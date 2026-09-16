@@ -2268,7 +2268,7 @@ export interface paths {
          * The picking backlog
          * @description The backlog, most urgent first, paginated.
          *
-         *     `summary` counts the **whole** queue, not the page: a warehouse asking how much is waiting means all of it, and a tile that changed as you paged would be worse than no tile.
+         *     `summary` counts the **whole** queue, not the page: a warehouse asking how much is waiting means all of it, and a tile that changed as you paged would be worse than no tile. It is also unaffected by `status`, for the same reason — the tiles are the totals the filter is chosen from.
          */
         get: operations["orders_picking_queue_retrieve"];
         put?: never;
@@ -3309,6 +3309,7 @@ export interface components {
             level: string;
             count: number;
             message: string;
+            ref_id?: number | null;
         };
         /** @description What a school is still owed — F44. */
         Backorder: {
@@ -3746,6 +3747,8 @@ export interface components {
             kit_number: string;
             /** @description For example "PS Starter Kit". */
             name: string;
+            /** @description Who this kit is for, in a sentence. Shown to schools choosing one. */
+            description?: string;
             school_level: components["schemas"]["SchoolLevelEnum"];
             readonly school_level_display: string;
             /** @description Inactive kits stay in reports but cannot be ordered. */
@@ -3861,6 +3864,7 @@ export interface components {
             level: string;
             message: string;
             count: number;
+            ref_id?: number | null;
         };
         /**
          * @description The bell: a badge count and the list behind it.
@@ -4283,6 +4287,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["ReconciliationRow"][];
         };
+        PaginatedRegistrationRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["RegistrationRequest"][];
+        };
         PaginatedSchoolList: {
             /** @example 123 */
             count: number;
@@ -4459,9 +4478,27 @@ export interface components {
          *     The current password is required even though the request is already
          *     authenticated. A stolen access token is then not enough to lock the real
          *     owner out of their own account.
+         *
+         *     **Except on the first-time gate.** An account with `must_change_password`
+         *     set may omit it, because there the field defends nothing and costs a
+         *     retype at the moment a new user is least sure of themselves:
+         *
+         *       * They typed that exact password on the sign-in screen seconds ago.
+         *         There is no other way to have reached this request.
+         *       * While the flag is set the server refuses every other endpoint, so a
+         *         session in the wrong hands can do precisely one thing — set a
+         *         password. The only attack the field stops is somebody reaching an
+         *         unlocked screen inside that window.
+         *       * It stops nothing at all with respect to the lead who created the
+         *         account: they chose the one-time password and could sign in as that
+         *         person directly.
+         *
+         *     Sending it anyway is still honoured and still checked, so a client that
+         *     has the password loses nothing by passing it.
          */
         PasswordChange: {
-            current_password: string;
+            /** @description Required unless the account is on the first-time password gate (`must_change_password`), where it may be omitted. */
+            current_password?: string;
             new_password: string;
         };
         PatchedGarment: {
@@ -4555,6 +4592,8 @@ export interface components {
             kit_number?: string;
             /** @description For example "PS Starter Kit". */
             name?: string;
+            /** @description Who this kit is for, in a sentence. Shown to schools choosing one. */
+            description?: string;
             school_level?: components["schemas"]["SchoolLevelEnum"];
             readonly school_level_display?: string;
             /** @description Inactive kits stay in reports but cannot be ordered. */
@@ -4755,10 +4794,11 @@ export interface components {
         };
         PatchedSku: {
             readonly id?: number;
-            /** @description System assigned. Unique forever, never reused. */
+            /** @description System assigned from the garment and size, for example GTR-14. */
             readonly number?: string;
             garment?: number;
             readonly garment_name?: string;
+            readonly garment_school_level?: string;
             size?: number;
             readonly size_name?: string;
             /** @description Filled in from the garment and size if left blank. */
@@ -5519,10 +5559,11 @@ export interface components {
         };
         Sku: {
             readonly id: number;
-            /** @description System assigned. Unique forever, never reused. */
+            /** @description System assigned from the garment and size, for example GTR-14. */
             readonly number: string;
             garment: number;
             readonly garment_name: string;
+            readonly garment_school_level: string;
             size: number;
             readonly size_name: string;
             /** @description Filled in from the garment and size if left blank. */
@@ -6176,13 +6217,16 @@ export interface operations {
     auth_registration_requests_list: {
         parameters: {
             query?: {
-                email?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Number of results to return per page. */
                 page_size?: number;
-                succeeded?: boolean;
-                user?: number;
+                /**
+                 * @description * `PENDING` - Pending
+                 *     * `APPROVED` - Approved
+                 *     * `DECLINED` - Declined
+                 */
+                status?: "APPROVED" | "DECLINED" | "PENDING";
             };
             header?: never;
             path?: never;
@@ -6195,7 +6239,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedLoginAttemptList"];
+                    "application/json": components["schemas"]["PaginatedRegistrationRequestList"];
                 };
             };
         };
@@ -6205,7 +6249,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;
@@ -6217,7 +6261,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LoginAttempt"];
+                    "application/json": components["schemas"]["RegistrationRequest"];
                 };
             };
         };
@@ -6227,7 +6271,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;
@@ -6254,7 +6298,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this login attempt. */
+                /** @description A unique integer value identifying this registration request. */
                 id: number;
             };
             cookie?: never;
@@ -9203,6 +9247,8 @@ export interface operations {
                 page?: number;
                 /** @description Capped at 200. */
                 page_size?: number;
+                /** @description Narrow the rows to one bucket: RELEASED is still to pick, PICKED is off the shelf and waiting for a van. Omit for both. `summary` is unaffected. */
+                status?: "PICKED" | "RELEASED";
                 /** @description Required for an all-locations role; ignored for a clerk. */
                 warehouse?: number;
             };
